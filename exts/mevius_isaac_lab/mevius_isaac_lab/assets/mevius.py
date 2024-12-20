@@ -24,11 +24,11 @@ from omni.isaac.lab.assets.articulation import ArticulationCfg
 # Configuration - Actuators.
 ##
 
-SIMPLE_ACTUATOR_CFG = DCMotorCfg(
+T_MOTOR_AK70_10_CFG = DCMotorCfg(
     joint_names_expr=[".*_collar_joint", ".*_hip_joint", ".*_knee_joint"],
-    saturation_effort=33.5,
-    effort_limit=33.5,
-    velocity_limit=21.0,
+    saturation_effort=24.8,
+    effort_limit=24.8,
+    velocity_limit=15.5,  # [rad/s] = 148 [rpm]
     stiffness={".*_collar_joint": 25.0, ".*_hip_joint": 25.0, ".*_knee_joint": 25.0},
     damping={".*_collar_joint": 0.5, ".*_hip_joint": 0.5, ".*_knee_joint": 0.5},
 )
@@ -51,14 +51,14 @@ MEVIUS_CFG = ArticulationCfg(
             max_depenetration_velocity=1.0,
         ),
         articulation_props=sim_utils.ArticulationRootPropertiesCfg(
-            enabled_self_collisions=True, solver_position_iteration_count=4, solver_velocity_iteration_count=0
+            enabled_self_collisions=False, solver_position_iteration_count=4, solver_velocity_iteration_count=0
         ),
     ),
     init_state=ArticulationCfg.InitialStateCfg(
         pos=(0.0, 0.0, 0.33),  # x,y,z [m]
         joint_pos={  # = target angles [rad] when action = 0.0
             '[F,B]R_collar_joint': -0.1,
-            '[F,B]L_collar_joint': -0.1,
+            '[F,B]L_collar_joint': 0.1,
             'F[R,L]_hip_joint': 0.8,
             'B[R,L]_hip_joint': 1.0,
             '.*knee_joint': -1.4,
@@ -66,7 +66,7 @@ MEVIUS_CFG = ArticulationCfg(
         joint_vel={".*": 0.0},
     ),
     soft_joint_pos_limit_factor=0.9,
-    actuators={"legs": SIMPLE_ACTUATOR_CFG},
+    actuators={"legs": T_MOTOR_AK70_10_CFG},
 )
 """Configuration of mevius robot using simple actuator config.
 
