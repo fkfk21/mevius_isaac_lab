@@ -34,14 +34,12 @@ SIMPLE_ACTUATOR_CFG = DCMotorCfg(
 )
 """Configuration for mevius DC actuator model."""
 
-ISAACLAB_TEST_DIR = "/home/fkfk21/core_ws/isaaclab_test"
-
 ##
 # Configuration - Articulation.
 ##
 MEVIUS_CFG = ArticulationCfg(
     spawn=sim_utils.UsdFileCfg(
-        usd_path=f"{ISAACLAB_TEST_DIR}/robots/mevius/mevius.usd",
+        usd_path="exts/mevius_isaac_lab/data/usd/mevius.usd",
         activate_contact_sensors=True,
         rigid_props=sim_utils.RigidBodyPropertiesCfg(
             disable_gravity=False,
