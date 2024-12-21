@@ -32,23 +32,24 @@ class MeviusRewardsCfg(RewardsCfg):
     )
 
 
-# @configclass
-# class MeviusSceneCfg(MySceneCfg):
-#     height_scanner = None
+@configclass
+class MeviusSceneCfg(MySceneCfg):
+    height_scanner = None
 
-# @configclass
-# class MeviusObservationsCfg(ObservationsCfg):
+@configclass
+class MeviusObservationsCfg(ObservationsCfg):
 
-#     @configclass
-#     class PolicyCfg(ObservationsCfg.PolicyCfg):
-#         height_scan = None
+    @configclass
+    class PolicyCfg(ObservationsCfg.PolicyCfg):
+        height_scan = None
 
-#     policy: PolicyCfg = PolicyCfg()
+    policy: PolicyCfg = PolicyCfg()
 
 
 @configclass
 class MeviusRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
-    # scene: MeviusSceneCfg = MeviusSceneCfg()
+    scene: MeviusSceneCfg = MeviusSceneCfg(num_envs=2048, env_spacing=2.5)
+    observations: MeviusObservationsCfg = MeviusObservationsCfg()
     rewards: MeviusRewardsCfg = MeviusRewardsCfg()
 
     def __post_init__(self):
@@ -64,7 +65,7 @@ class MeviusRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         self.scene.terrain.terrain_generator.sub_terrains["random_rough"].noise_step = 0.01  # type: ignore
 
         # reduce action scale
-        self.actions.joint_pos.scale = 0.25
+        self.actions.joint_pos.scale = 0.3
 
         # event
         # self.events.push_robot = None  # type: ignore
@@ -102,6 +103,7 @@ class MeviusRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         # self.observations.policy.height_scan.noise = Unoise(n_min=-0.1, n_max=0.1)
 
         # rewards
+        self.rewards.base_height_l2.weight = 0.00
         self.rewards.feet_air_time.params["sensor_cfg"].body_names = ".*_foot"
         self.rewards.feet_air_time.weight = 0.01
         self.rewards.undesired_contacts = None
@@ -114,8 +116,8 @@ class MeviusRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         # self.rewards.flat_orientation_l2.weight = -10.0
         # self.rewards.lin_vel_z_l2.weight = -10.0
         # self.rewards.ang_vel_xy_l2.weight = -0.1
-        self.rewards.dof_torques_l2.weight = -0.002
-        self.rewards.dof_acc_l2.weight = -2.5e-7
+        self.rewards.dof_torques_l2.weight = -2.0e-8
+        self.rewards.dof_acc_l2.weight = -2.5e-8
         # self.rewards.dof_vel_l2.weight = -1.0e-7
         # # self.rewards.stand_still.weight = -10.0
         # self.rewards.dof_pos_limits.weight = -10.0
