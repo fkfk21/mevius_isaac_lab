@@ -3,16 +3,54 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
+import math
+from omni.isaac.lab.managers.scene_entity_cfg import SceneEntityCfg
 from omni.isaac.lab.utils import configclass
-from mevius_isaac_lab.tasks.locomotion.velocity.velocity_env_cfg import LocomotionVelocityRoughEnvCfg
+from omni.isaac.lab.managers import RewardTermCfg as RewTerm
+from mevius_isaac_lab.tasks.locomotion.velocity.velocity_env_cfg import (
+  LocomotionVelocityRoughEnvCfg,
+  RewardsCfg,
+  MySceneCfg,
+  ObservationsCfg
+)
+from mevius_isaac_lab.tasks.locomotion.velocity import mdp
 
 ##
 # Pre-defined configs
 ##
-from omni.isaac.lab_assets.mevius import MEVIUS_CFG  # isort: skip
+from omni.isaac.lab_assets.mevius import MEVIUS_CFG
+
+@configclass
+class MeviusRewardsCfg(RewardsCfg):
+    base_height_l2 = RewTerm(
+        func=mdp.base_height_l2,
+        weight=-0.005,
+        params={
+            "asset_cfg": SceneEntityCfg("robot", body_names="base"),
+            "target_height": 0.3,
+        }
+    )
+
+
+# @configclass
+# class MeviusSceneCfg(MySceneCfg):
+#     height_scanner = None
+
+# @configclass
+# class MeviusObservationsCfg(ObservationsCfg):
+
+#     @configclass
+#     class PolicyCfg(ObservationsCfg.PolicyCfg):
+#         height_scan = None
+
+#     policy: PolicyCfg = PolicyCfg()
+
 
 @configclass
 class MeviusRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
+    # scene: MeviusSceneCfg = MeviusSceneCfg()
+    rewards: MeviusRewardsCfg = MeviusRewardsCfg()
+
     def __post_init__(self):
         # post init of parent
         super().__post_init__()
@@ -21,15 +59,17 @@ class MeviusRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         self.scene.num_envs = 1024
 
         # scale down the terrains because the robot is small
-        # self.scene.terrain.terrain_generator.sub_terrains["boxes"].grid_height_range = (0.025, 0.1)  # type: ignore
-        # self.scene.terrain.terrain_generator.sub_terrains["random_rough"].noise_range = (0.01, 0.06)  # type: ignore
-        # self.scene.terrain.terrain_generator.sub_terrains["random_rough"].noise_step = 0.01  # type: ignore
+        self.scene.terrain.terrain_generator.sub_terrains["boxes"].grid_height_range = (0.025, 0.1)  # type: ignore
+        self.scene.terrain.terrain_generator.sub_terrains["random_rough"].noise_range = (0.01, 0.06)  # type: ignore
+        self.scene.terrain.terrain_generator.sub_terrains["random_rough"].noise_step = 0.01  # type: ignore
 
         # reduce action scale
         self.actions.joint_pos.scale = 0.25
 
         # event
-        self.events.push_robot = None  # type: ignore
+        # self.events.push_robot = None  # type: ignore
+        self.events.physics_material.params["static_friction_range"] = (0.7, 1.3)
+        self.events.physics_material.params["dynamic_friction_range"] = (1.0, 1.0)
         self.events.add_base_mass.params["mass_distribution_params"] = (-0.5, 1.0)
         self.events.add_base_mass.params["asset_cfg"].body_names = "base"
         self.events.base_external_force_torque.params["asset_cfg"].body_names = "base"
@@ -48,10 +88,10 @@ class MeviusRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
 
         # commands
         # self.commands.base_velocity.heading_command = True
-        # self.commands.base_velocity.ranges.lin_vel_x = (-0.7, 0.7)
-        # self.commands.base_velocity.ranges.lin_vel_y = (-0.5, 0.5)
-        # self.commands.base_velocity.ranges.ang_vel_z = (-0.7, 0.7)
-        # self.commands.base_velocity.ranges.heading = (-math.pi, math.pi)
+        self.commands.base_velocity.ranges.lin_vel_x = (-0.7, 0.7)
+        self.commands.base_velocity.ranges.lin_vel_y = (-0.5, 0.5)
+        self.commands.base_velocity.ranges.ang_vel_z = (-0.7, 0.7)
+        self.commands.base_velocity.ranges.heading = (-math.pi, math.pi)
 
         # observations
         # self.observations.policy.joint_pos.noise = Unoise(n_min=-0.05, n_max=0.05)
@@ -74,8 +114,7 @@ class MeviusRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         # self.rewards.flat_orientation_l2.weight = -10.0
         # self.rewards.lin_vel_z_l2.weight = -10.0
         # self.rewards.ang_vel_xy_l2.weight = -0.1
-        # self.rewards.feet_air_time.weight = 0.001
-        self.rewards.dof_torques_l2.weight = -0.0002
+        self.rewards.dof_torques_l2.weight = -0.002
         self.rewards.dof_acc_l2.weight = -2.5e-7
         # self.rewards.dof_vel_l2.weight = -1.0e-7
         # # self.rewards.stand_still.weight = -10.0

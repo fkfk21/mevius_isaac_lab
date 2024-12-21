@@ -3,6 +3,7 @@ from __future__ import annotations
 import torch
 from typing import TYPE_CHECKING
 
+from omni.isaac.lab.assets.articulation.articulation import Articulation
 from omni.isaac.lab.managers import SceneEntityCfg
 from omni.isaac.lab.sensors import ContactSensor
 
@@ -54,3 +55,19 @@ def feet_air_time_positive_biped(
     # no reward for zero command
     reward *= torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.1
     return reward
+
+
+def base_height_l2(
+    env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg, target_height: float
+) -> torch.Tensor:
+    """Reward the robot for maintaining a specific height above the ground using L2-kernel.
+
+    This function rewards the agent for maintaining a specific height above the ground. The reward is computed
+    as the L2-norm of the difference between the current height and the target height.
+    """
+    # extract the used quantities (to enable type-hinting)
+    asset: Articulation = env.scene[asset_cfg.name]
+    base_height = asset.data.root_pos_w[:, 2].unsqueeze(-1)
+    # print(base_height[1:5, 0])
+    reward = torch.norm(base_height - target_height, dim=1)
+    return torch.sum(reward)
