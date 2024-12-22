@@ -17,22 +17,23 @@ Reference:
 
 # from omni.isaac.lab.sensors.camera.camera_cfg import CameraCfg
 import omni.isaac.lab.sim as sim_utils
-from omni.isaac.lab.actuators import DCMotorCfg
+from omni.isaac.lab.actuators import DelayedPDActuatorCfg
 from omni.isaac.lab.assets.articulation import ArticulationCfg
 
 ##
 # Configuration - Actuators.
 ##
 
-T_MOTOR_AK70_10_CFG = DCMotorCfg(
+T_MOTOR_AK70_10_CFG = DelayedPDActuatorCfg(
     joint_names_expr=[".*_collar_joint", ".*_hip_joint", ".*_knee_joint"],
-    saturation_effort=24.8,
     effort_limit=24.8,
     velocity_limit=15.5,  # [rad/s] = 148 [rpm]
     stiffness={".*_collar_joint": 25.0, ".*_hip_joint": 25.0, ".*_knee_joint": 25.0},
     damping={".*_collar_joint": 0.5, ".*_hip_joint": 0.5, ".*_knee_joint": 0.5},
+    min_delay=0.01-0.0025,
+    max_delay=0.03+0.0075,
 )
-"""Configuration for mevius DC actuator model."""
+"""Configuration for mevius Delayed PDActuator model."""
 
 ##
 # Configuration - Articulation.

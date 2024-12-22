@@ -65,7 +65,7 @@ class MeviusRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         self.scene.terrain.terrain_generator.sub_terrains["random_rough"].noise_step = 0.01  # type: ignore
 
         # reduce action scale
-        self.actions.joint_pos.scale = 0.3
+        self.actions.joint_pos.scale = 0.3  # haraduka: 0.5
 
         # event
         # self.events.push_robot = None  # type: ignore
@@ -103,25 +103,24 @@ class MeviusRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         # self.observations.policy.height_scan.noise = Unoise(n_min=-0.1, n_max=0.1)
 
         # rewards
-        self.rewards.base_height_l2.weight = 0.00
+        self.rewards.track_lin_vel_xy_exp.weight = 2.0  # default 1.0, haraduka: 1.0
+        self.rewards.track_ang_vel_z_exp.weight = 0.9  # default 0.5, haraduka: 0.5
+        # self.rewards.lin_vel_z_l2.weight = -10.0  # default -2.0, haraduka: -10.0
+        # self.rewards.ang_vel_xy_l2.weight = -0.1  # default -0.05, haraduka: -0.1
+        self.rewards.dof_torques_l2.weight = -2.5e-4  # default -1.0e-5, haraduka: -1.0e-3
+        self.rewards.dof_acc_l2.weight = -2.0e-7  # default -2.5e-7, haraduka: -1.0e-4
+        # self.rewards.action_rate_l2.weight = -0.1  # default -0.01, haraduka: -0.1
         self.rewards.feet_air_time.params["sensor_cfg"].body_names = ".*_foot"
-        self.rewards.feet_air_time.weight = 0.01
+        self.rewards.feet_air_time.weight = 0.125  # default 0.125, haraduka: 0.001
         self.rewards.undesired_contacts = None
         # self.rewards.undesired_contacts.params["sensor_cfg"].body_names = ["base", ".*_thigh", ".*_scapula"]
-        # self.rewards.undesired_contacts.weight = 0.0
-        # # reward scales
-        self.rewards.track_lin_vel_xy_exp.weight = 1.5
-        self.rewards.track_ang_vel_z_exp.weight = 0.75
-        # self.rewards.action_rate_l2.weight = -0.1
-        # self.rewards.flat_orientation_l2.weight = -10.0
-        # self.rewards.lin_vel_z_l2.weight = -10.0
-        # self.rewards.ang_vel_xy_l2.weight = -0.1
-        self.rewards.dof_torques_l2.weight = -2.0e-8
-        self.rewards.dof_acc_l2.weight = -2.5e-8
-        # self.rewards.dof_vel_l2.weight = -1.0e-7
-        # # self.rewards.stand_still.weight = -10.0
-        # self.rewards.dof_pos_limits.weight = -10.0
-        # self.rewards.undesired_contacts.weight = -100.0
+        # self.rewards.undesired_contacts.weight = 0.0  # default -1.0, haraduka: None
+        self.rewards.flat_orientation_l2.weight = -1.0  # default 0.0, haraduka: -10.0
+        self.rewards.base_height_l2.weight = 0.00   # default -0.005, haraduka: None
+        self.rewards.dof_pos_limits.weight = -10.0  # default 0.0, haraduka: -10.0
+        # self.rewards.dof_vel_l2.weight = -1.0e-7  # default None, haraduka: -1.0e-7
+
+        # self.rewards.stand_still.weight = -10.0  # default None, haraduka: -10.0
 
         # terminations
         self.terminations.base_contact.params["sensor_cfg"].body_names = ["base", ".*_thigh", ".*_scapula"]
