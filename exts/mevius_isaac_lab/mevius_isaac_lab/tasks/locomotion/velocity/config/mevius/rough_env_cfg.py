@@ -29,6 +29,10 @@ class MeviusRewardsCfg(RewardsCfg):
         func=mdp.joint_vel_l2,
         weight=0.0,
     )
+    terminate = RewTerm(
+        func=mdp.is_terminated,
+        weight=-0.0,
+    )
 
 
 @configclass

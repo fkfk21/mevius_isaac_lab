@@ -71,3 +71,50 @@ def base_height_l2(
     # print(base_height[1:5, 0])
     reward = torch.norm(base_height - target_height, dim=1)
     return torch.sum(reward)
+
+
+# def feet_stumble(
+#     env: ManagerBasedRLEnv, sensor_cfg: SceneEntityCfg, threshold: float
+# ) -> torch.Tensor:
+#     """Penalize the robot for stumbling using L2-kernel.
+
+#     This function penalizes the agent for stumbling. The reward is computed as the L2-norm of the
+#     contact forces acting on the feet. If the contact forces exceed a threshold, the reward is negative.
+#     """
+#     # extract the used quantities (to enable type-hinting)
+#     contact_sensor: ContactSensor = env.scene.sensors[sensor_cfg.name]
+#     # compute the reward
+#     contact_forces = contact_sensor.compute_contact_forces()
+#     reward = torch.norm(contact_forces, dim=1) - threshold
+#     return torch.sum(reward)
+
+
+# def stand_still(env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg) -> torch.Tensor:
+#     """Reward the robot for standing still using L2-kernel.
+
+#     This function rewards the agent for standing still. The reward is computed as the L2-norm of the
+#     linear and angular velocities of the robot.
+#     """
+#     # extract the used quantities (to enable type-hinting)
+#     asset: Articulation = env.scene[asset_cfg.name]
+#     base_lin_vel = asset.data.root_lin_vel_w
+#     base_ang_vel = asset.data.root_ang_vel_w
+#     # compute the reward
+#     reward = torch.norm(base_lin_vel, dim=1) + torch.norm(base_ang_vel, dim=1)
+#     return torch.sum(reward)
+
+
+# def max_contact_force(
+#     env: ManagerBasedRLEnv, sensor_cfg: SceneEntityCfg, threshold: float
+# ) -> torch.Tensor:
+#     """Penalize the robot for exceeding a maximum contact force using L2-kernel.
+
+#     This function penalizes the agent for exceeding a maximum contact force. The reward is computed as the
+#     L2-norm of the contact forces acting on the feet. If the contact forces exceed a threshold, the reward is negative.
+#     """
+#     # extract the used quantities (to enable type-hinting)
+#     contact_sensor: ContactSensor = env.scene.sensors[sensor_cfg.name]
+#     # compute the reward
+#     contact_forces = contact_sensor.compute_contact_forces()
+#     reward = torch.norm(contact_forces, dim=1) - threshold
+#     return torch.sum(reward)
