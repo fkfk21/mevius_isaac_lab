@@ -40,7 +40,7 @@ T_MOTOR_AK70_10_CFG = DelayedPDActuatorCfg(
 ##
 MEVIUS_CFG = ArticulationCfg(
     spawn=sim_utils.UsdFileCfg(
-        usd_path="exts/mevius_isaac_lab/data/usd/mevius.usd",
+        usd_path="data/usd/mevius.usd",
         activate_contact_sensors=True,
         rigid_props=sim_utils.RigidBodyPropertiesCfg(
             disable_gravity=False,

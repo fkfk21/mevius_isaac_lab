@@ -1,8 +1,3 @@
-# Copyright (c) 2022-2024, The Isaac Lab Project Developers.
-# All rights reserved.
-#
-# SPDX-License-Identifier: BSD-3-Clause
-
 import math
 from omni.isaac.lab.managers.scene_entity_cfg import SceneEntityCfg
 from omni.isaac.lab.utils import configclass
@@ -30,11 +25,16 @@ class MeviusRewardsCfg(RewardsCfg):
             "target_height": 0.3,
         }
     )
+    dof_vel_l2 = RewTerm(
+        func=mdp.joint_vel_l2,
+        weight=0.0,
+    )
 
 
 @configclass
 class MeviusSceneCfg(MySceneCfg):
     height_scanner = None
+
 
 @configclass
 class MeviusObservationsCfg(ObservationsCfg):
@@ -108,7 +108,7 @@ class MeviusRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         # self.rewards.lin_vel_z_l2.weight = -10.0  # default -2.0, haraduka: -10.0
         # self.rewards.ang_vel_xy_l2.weight = -0.1  # default -0.05, haraduka: -0.1
         self.rewards.dof_torques_l2.weight = -2.5e-4  # default -1.0e-5, haraduka: -1.0e-3
-        self.rewards.dof_acc_l2.weight = -2.0e-7  # default -2.5e-7, haraduka: -1.0e-4
+        self.rewards.dof_acc_l2.weight = -8.0e-7  # default -2.5e-7, haraduka: -1.0e-4
         # self.rewards.action_rate_l2.weight = -0.1  # default -0.01, haraduka: -0.1
         self.rewards.feet_air_time.params["sensor_cfg"].body_names = ".*_foot"
         self.rewards.feet_air_time.weight = 0.125  # default 0.125, haraduka: 0.001
@@ -118,7 +118,7 @@ class MeviusRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         self.rewards.flat_orientation_l2.weight = -1.0  # default 0.0, haraduka: -10.0
         self.rewards.base_height_l2.weight = 0.00   # default -0.005, haraduka: None
         self.rewards.dof_pos_limits.weight = -10.0  # default 0.0, haraduka: -10.0
-        # self.rewards.dof_vel_l2.weight = -1.0e-7  # default None, haraduka: -1.0e-7
+        self.rewards.dof_vel_l2.weight = -1.0e-9  # default None, haraduka: -1.0e-7
 
         # self.rewards.stand_still.weight = -10.0  # default None, haraduka: -10.0
 
@@ -133,7 +133,7 @@ class MeviusRoughEnvCfg_PLAY(MeviusRoughEnvCfg):
         super().__post_init__()
 
         # make a smaller scene for play
-        self.scene.num_envs = 50
+        self.scene.num_envs = 100
         self.scene.env_spacing = 2.5
         # spawn the robot randomly in the grid (instead of their terrain levels)
         self.scene.terrain.max_init_terrain_level = None
