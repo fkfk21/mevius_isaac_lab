@@ -9,11 +9,7 @@ from mevius_isaac_lab.tasks.locomotion.velocity.velocity_env_cfg import (
   ObservationsCfg
 )
 from mevius_isaac_lab.tasks.locomotion.velocity import mdp
-
-##
-# Pre-defined configs
-##
-from omni.isaac.lab_assets.mevius import MEVIUS_CFG
+from mevius_isaac_lab.assets.mevius import MEVIUS_CFG
 
 @configclass
 class MeviusRewardsCfg(RewardsCfg):
