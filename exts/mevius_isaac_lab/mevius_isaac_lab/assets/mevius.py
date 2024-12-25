@@ -30,17 +30,19 @@ T_MOTOR_AK70_10_CFG = DelayedPDActuatorCfg(
     velocity_limit=15.5,  # [rad/s] = 148 [rpm]
     stiffness={".*_collar_joint": 25.0, ".*_hip_joint": 25.0, ".*_knee_joint": 25.0},
     damping={".*_collar_joint": 0.5, ".*_hip_joint": 0.5, ".*_knee_joint": 0.5},
-    min_delay=0.01-0.0025,
-    max_delay=0.03+0.0075,
+    min_delay=int(0.01/0.005),  # 0.01-0.0025
+    max_delay=int(0.03/0.005),  # 0.03+0.0075
 )
 """Configuration for mevius Delayed PDActuator model."""
 
 ##
 # Configuration - Articulation.
 ##
+import os
+MEVIUS_ASSETS_BASEPATH = os.path.dirname(__file__) 
 MEVIUS_CFG = ArticulationCfg(
     spawn=sim_utils.UsdFileCfg(
-        usd_path="data/usd/mevius.usd",
+        usd_path=f"{MEVIUS_ASSETS_BASEPATH}/data/usd/mevius.usd",
         activate_contact_sensors=True,
         rigid_props=sim_utils.RigidBodyPropertiesCfg(
             disable_gravity=False,
