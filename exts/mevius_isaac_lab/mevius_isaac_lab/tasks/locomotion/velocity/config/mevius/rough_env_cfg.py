@@ -29,10 +29,34 @@ class MeviusRewardsCfg(RewardsCfg):
         func=mdp.joint_vel_l2,
         weight=0.0,
     )
-    terminate = RewTerm(
+    termination = RewTerm(
         func=mdp.is_terminated,
-        weight=-0.0,
+        weight=-3.0,
     )
+    feet_stumble = RewTerm(
+        func=mdp.feet_stumble,
+        weight=-6.0e-4,
+        params={
+            "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_foot"),
+            "threshold_ratio": 5
+        }
+    )
+    # max_contact_forces = RewTerm(
+    #     func=mdp.contact_forces,
+    #     weight=0.00,
+    #     params={
+    #         "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_foot"),
+    #         "threshold": 120
+    #     }
+    # )
+    # stand_still = RewTerm(
+    #     func=mdp.stand_still,
+    #     weight=0.00,
+    #     params={
+    #         "asset_cfg": SceneEntityCfg("robot", body_names="base"),
+    #     }
+    # )
+    
 
 
 @configclass

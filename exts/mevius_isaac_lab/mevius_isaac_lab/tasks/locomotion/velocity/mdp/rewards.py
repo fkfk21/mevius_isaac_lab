@@ -73,48 +73,21 @@ def base_height_l2(
     return torch.sum(reward)
 
 
-# def feet_stumble(
-#     env: ManagerBasedRLEnv, sensor_cfg: SceneEntityCfg, threshold: float
-# ) -> torch.Tensor:
-#     """Penalize the robot for stumbling using L2-kernel.
-
-#     This function penalizes the agent for stumbling. The reward is computed as the L2-norm of the
-#     contact forces acting on the feet. If the contact forces exceed a threshold, the reward is negative.
-#     """
-#     # extract the used quantities (to enable type-hinting)
-#     contact_sensor: ContactSensor = env.scene.sensors[sensor_cfg.name]
-#     # compute the reward
-#     contact_forces = contact_sensor.compute_contact_forces()
-#     reward = torch.norm(contact_forces, dim=1) - threshold
-#     return torch.sum(reward)
+def feet_stumble(
+    env: ManagerBasedRLEnv, sensor_cfg: SceneEntityCfg, threshold_ratio: float
+) -> torch.Tensor:
+    """Penalize feet hitting the vertical surface. """
+    contact_sensor: ContactSensor = env.scene.sensors[sensor_cfg.name]
+    net_contact_forces = contact_sensor.data.net_forces_w
+    # decompose the contact forces
+    xy_forces = torch.norm(net_contact_forces[:, sensor_cfg.body_ids, :2], dim=2)  # (N, SENSOR_NUM)
+    z_forces = torch.abs(net_contact_forces[:, sensor_cfg.body_ids, 2])  # (N, SENSOR_NUM)
+    # compute the reward
+    # print(xy_forces[0, :], z_forces[0, :], torch.any(xy_forces > threshold_ratio*z_forces, dim=1))
+    ### TODO: check if using history. check the history time step itself
+    return torch.sum(torch.any(xy_forces > threshold_ratio*z_forces, dim=1))
 
 
 # def stand_still(env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg) -> torch.Tensor:
-#     """Reward the robot for standing still using L2-kernel.
-
-#     This function rewards the agent for standing still. The reward is computed as the L2-norm of the
-#     linear and angular velocities of the robot.
-#     """
-#     # extract the used quantities (to enable type-hinting)
-#     asset: Articulation = env.scene[asset_cfg.name]
-#     base_lin_vel = asset.data.root_lin_vel_w
-#     base_ang_vel = asset.data.root_ang_vel_w
-#     # compute the reward
-#     reward = torch.norm(base_lin_vel, dim=1) + torch.norm(base_ang_vel, dim=1)
-#     return torch.sum(reward)
-
-
-# def max_contact_force(
-#     env: ManagerBasedRLEnv, sensor_cfg: SceneEntityCfg, threshold: float
-# ) -> torch.Tensor:
-#     """Penalize the robot for exceeding a maximum contact force using L2-kernel.
-
-#     This function penalizes the agent for exceeding a maximum contact force. The reward is computed as the
-#     L2-norm of the contact forces acting on the feet. If the contact forces exceed a threshold, the reward is negative.
-#     """
-#     # extract the used quantities (to enable type-hinting)
-#     contact_sensor: ContactSensor = env.scene.sensors[sensor_cfg.name]
-#     # compute the reward
-#     contact_forces = contact_sensor.compute_contact_forces()
-#     reward = torch.norm(contact_forces, dim=1) - threshold
-#     return torch.sum(reward)
+#     # Penalize motion at zero commands
+#     return torch.sum(torch.abs(self.dof_pos - self.default_dof_pos), dim=1) * (torch.norm(self.commands[:, :2], dim=1) < 0.1)
