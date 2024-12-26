@@ -70,7 +70,7 @@ def base_height_l2(
     base_height = asset.data.root_pos_w[:, 2].unsqueeze(-1)
     # print(base_height[1:5, 0])
     reward = torch.norm(base_height - target_height, dim=1)
-    return torch.sum(reward)
+    return reward
 
 
 def feet_stumble(
@@ -85,9 +85,13 @@ def feet_stumble(
     # compute the reward
     # print(xy_forces[0, :], z_forces[0, :], torch.any(xy_forces > threshold_ratio*z_forces, dim=1))
     ### TODO: check if using history. check the history time step itself
-    return torch.sum(torch.any(xy_forces > threshold_ratio*z_forces, dim=1))
+    return torch.any(xy_forces > threshold_ratio*z_forces, dim=1)
 
 
-# def stand_still(env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg) -> torch.Tensor:
-#     # Penalize motion at zero commands
-#     return torch.sum(torch.abs(self.dof_pos - self.default_dof_pos), dim=1) * (torch.norm(self.commands[:, :2], dim=1) < 0.1)
+def stand_still(
+    env: ManagerBasedRLEnv, command_name: str, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")
+) -> torch.Tensor:
+    # Penalize motion at zero commands
+    asset: Articulation = env.scene[asset_cfg.name]
+    return torch.sum(torch.abs(asset.data.joint_pos - asset.data.default_joint_pos), dim=1) * \
+        torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) < 0.1  # to leave small velocity command env
