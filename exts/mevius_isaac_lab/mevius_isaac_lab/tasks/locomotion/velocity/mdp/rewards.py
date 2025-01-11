@@ -89,9 +89,16 @@ def feet_stumble(
 
 
 def stand_still(
-    env: ManagerBasedRLEnv, command_name: str, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")
+    env: ManagerBasedRLEnv,
+    command_name: str,
+    asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+    lin_vel_threshold: float = 0.1,
+    ang_vel_threshold: float = 0.05,
 ) -> torch.Tensor:
-    # Penalize motion at zero commands
+    # Penalize motion at nearly zero commands
     asset: Articulation = env.scene[asset_cfg.name]
-    return torch.sum(torch.abs(asset.data.joint_pos - asset.data.default_joint_pos), dim=1) * \
-        torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) < 0.1  # to leave small velocity command env
+    lin_vel = torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1)
+    ang_vel = torch.abs(env.command_manager.get_command(command_name)[:, 2])
+    ret_value = torch.sum(torch.abs(asset.data.joint_pos - asset.data.default_joint_pos), dim=1) * \
+                ((lin_vel < lin_vel_threshold) & (ang_vel < ang_vel_threshold))
+    return ret_value
