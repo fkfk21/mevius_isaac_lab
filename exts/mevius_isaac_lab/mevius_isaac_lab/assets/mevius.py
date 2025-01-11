@@ -27,11 +27,18 @@ from omni.isaac.lab.assets.articulation import ArticulationCfg
 T_MOTOR_AK70_10_CFG = DelayedPDActuatorCfg(
     joint_names_expr=[".*_collar_joint", ".*_hip_joint", ".*_knee_joint"],
     effort_limit=24.8,
-    velocity_limit=20.9,  # [rad/s] = 200 [rpm]
-    stiffness={".*_collar_joint": 30.0, ".*_hip_joint": 30.0, ".*_knee_joint": 20.0},
-    damping={".*_collar_joint": 1.0, ".*_hip_joint": 1.0, ".*_knee_joint": 0.8},
+    velocity_limit=20.9,  # [rad/s] = 148~200 [rpm]
+    # action scale: 0.5
+    # stiffness={".*_collar_joint": 30.0, ".*_hip_joint": 30.0, ".*_knee_joint": 30.0},
+    # damping={".*_collar_joint": 0.5, ".*_hip_joint": 0.5, ".*_knee_joint": 0.1},
+
+    # action scale: 0.3
     # stiffness={".*_collar_joint": 25.0, ".*_hip_joint": 25.0, ".*_knee_joint": 25.0},
     # damping={".*_collar_joint": 0.5, ".*_hip_joint": 0.5, ".*_knee_joint": 0.5},
+
+    # action scale: 0.25
+    stiffness={".*_collar_joint": 30.0, ".*_hip_joint": 30.0, ".*_knee_joint": 30.0},
+    damping={".*_collar_joint": 0.5, ".*_hip_joint": 0.5, ".*_knee_joint": 0.1},
     min_delay=int(0.01/0.005),  # 0.01-0.0025
     max_delay=int(0.03/0.005),  # 0.03+0.0075
 )
