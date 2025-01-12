@@ -84,7 +84,8 @@ class MeviusRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         # switch robot to anymal-d
         self.scene.robot = MEVIUS_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
 
-        self.scene.terrain.terrain_generator.sub_terrains["boxes"].grid_height_range = (0.025, 0.15) # (0.025, 0.1)
+        # self.scene.terrain.terrain_generator.num_rows = 20
+        self.scene.terrain.terrain_generator.sub_terrains["boxes"].grid_height_range = (0.025, 0.12) # (0.025, 0.1)
         self.scene.terrain.terrain_generator.sub_terrains["random_rough"].noise_range = (0.01, 0.06)
         self.scene.terrain.terrain_generator.sub_terrains["random_rough"].noise_step = 0.01
 
@@ -114,7 +115,7 @@ class MeviusRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         self.commands.base_velocity.heading_command = False
         self.commands.base_velocity.ranges.lin_vel_x = (-0.7, 0.7)
         self.commands.base_velocity.ranges.lin_vel_y = (-0.4, 0.4)
-        self.commands.base_velocity.ranges.ang_vel_z = (-0.7, 0.7)
+        self.commands.base_velocity.ranges.ang_vel_z = (-0.3, 0.3)
         self.commands.base_velocity.ranges.heading = (-math.pi, math.pi)
 
         # observations
@@ -129,11 +130,11 @@ class MeviusRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         self.rewards.track_ang_vel_z_exp.weight = 0.9  # default 0.5, haraduka: 0.5
         self.rewards.lin_vel_z_l2.weight = -2.0  # default -2.0, haraduka: -10.0
         self.rewards.ang_vel_xy_l2.weight = -0.05  # default -0.05, haraduka: -0.1
-        self.rewards.dof_torques_l2.weight = -2.5e-4  # default -1.0e-5, haraduka: -1.0e-3
-        self.rewards.dof_acc_l2.weight = -2.0e-7  # default -2.5e-7, haraduka: -1.0e-4
+        self.rewards.dof_torques_l2.weight = -2.5e-5  # default -1.0e-5, haraduka: -1.0e-3
+        self.rewards.dof_acc_l2.weight = -2.0e-8  # default -2.5e-7, haraduka: -1.0e-4
         self.rewards.action_rate_l2.weight = -0.01  # default -0.01, haraduka: -0.1
         self.rewards.feet_air_time.params["sensor_cfg"].body_names = ".*_foot"
-        self.rewards.feet_air_time.weight = 0.125  # default 0.125, haraduka: 0.001
+        self.rewards.feet_air_time.weight = 0.01  # default 0.125, haraduka: 0.001
         self.rewards.undesired_contacts = None
         # self.rewards.undesired_contacts.params["sensor_cfg"].body_names = ["base", ".*_thigh", ".*_scapula"]
         # self.rewards.undesired_contacts.weight = 0.0  # default -1.0, haraduka: None
@@ -142,9 +143,9 @@ class MeviusRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         self.rewards.dof_pos_limits.weight = -10.0  # default 0.0, haraduka: -10.0
         # self.rewards.dof_vel_l2.weight = -2.5e-8  # default None, haraduka: -1.0e-7
 
-        self.rewards.stand_still.weight = -1.0  # default None, haraduka: -10.0
-        self.rewards.feet_stumble.weight = -0.02  # default None, haraduka: None
-        self.rewards.gait.weight = 0.1 # default None, haraduka: None
+        self.rewards.stand_still.weight = 0.0  # default None, haraduka: -10.0
+        self.rewards.feet_stumble.weight = -0.0001  # default None, haraduka: None
+        self.rewards.gait.weight = 0.0 # default None, haraduka: None
 
         # terminations
         self.terminations.base_contact.params["sensor_cfg"].body_names = ["base"]
@@ -180,8 +181,8 @@ class MeviusRoughEnvCfg_PLAY(MeviusRoughEnvCfg):
         self.scene.terrain.terrain_generator.sub_terrains["random_rough"].proportion = 0.0
         self.scene.terrain.terrain_generator.sub_terrains["hf_pyramid_slope"].proportion = 0.0
         self.scene.terrain.terrain_generator.sub_terrains["hf_pyramid_slope_inv"].proportion = 0.0
-        self.scene.terrain.terrain_generator.sub_terrains["ring"] = terrain_gen.MeshFloatingRingTerrainCfg(
-            proportion=0.2, ring_width_range=(0.4, 0.4), ring_height_range=(0.0, 0.0), ring_thickness=0.1, platform_width=2.0
+        self.scene.terrain.terrain_generator.sub_terrains["rails"] = terrain_gen.MeshRailsTerrainCfg(
+            proportion=0.2, platform_width=4.0, size=(5.0, 5.0), rail_height_range=(0.1, 0.1), rail_thickness_range=(0.3, 0.4), 
         )
 
         #######
