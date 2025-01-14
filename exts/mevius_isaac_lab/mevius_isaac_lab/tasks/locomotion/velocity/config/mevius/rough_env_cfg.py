@@ -3,15 +3,16 @@ from omni.isaac.lab.managers.scene_entity_cfg import SceneEntityCfg
 from omni.isaac.lab.utils import configclass
 from omni.isaac.lab.managers import RewardTermCfg as RewTerm
 from mevius_isaac_lab.tasks.locomotion.velocity.velocity_env_cfg import (
-  LocomotionVelocityRoughEnvCfg,
-  RewardsCfg,
-  MySceneCfg,
-  ObservationsCfg
+    LocomotionVelocityRoughEnvCfg,
+    MySceneCfg,
+    RewardsCfg,
+    ObservationsCfg,
 )
 import omni.isaac.lab_tasks.manager_based.locomotion.velocity.config.spot.mdp as spot_mdp
 from omni.isaac.lab.utils.noise import AdditiveUniformNoiseCfg as Unoise
 from mevius_isaac_lab.tasks.locomotion.velocity import mdp
 from mevius_isaac_lab.assets.mevius import MEVIUS_CFG
+
 
 @configclass
 class MeviusRewardsCfg(RewardsCfg):
@@ -23,10 +24,10 @@ class MeviusRewardsCfg(RewardsCfg):
             "target_height": 0.3,
         }
     )
-    # dof_vel_l2 = RewTerm(
-    #     func=mdp.joint_vel_l2,
-    #     weight=0.0,
-    # )
+    dof_vel_l2 = RewTerm(
+        func=mdp.joint_vel_l2,
+        weight=0.0,
+    )
     feet_stumble = RewTerm(
         func=mdp.feet_stumble,
         weight=0.0,
@@ -90,7 +91,14 @@ class MeviusRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         self.scene.terrain.terrain_generator.sub_terrains["random_rough"].noise_step = 0.01
 
         # reduce action scale
-        self.actions.joint_pos.scale = 0.3
+        self.actions.joint_pos.scale = 0.5
+        self.actions.joint_pos.joint_names = [
+            "BL_collar_joint", "BL_hip_joint", "BL_knee_joint",
+            "BR_collar_joint", "BR_hip_joint", "BR_knee_joint",
+            "FL_collar_joint", "FL_hip_joint", "FL_knee_joint",
+            "FR_collar_joint", "FR_hip_joint", "FR_knee_joint",
+        ]
+        self.actions.joint_pos.preserve_order = True
 
         # event
         self.events.physics_material.params["static_friction_range"] = (0.7, 1.2)
@@ -119,20 +127,24 @@ class MeviusRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         self.commands.base_velocity.ranges.heading = (-math.pi, math.pi)
 
         # observations
-        self.observations.policy.joint_pos.noise = Unoise(n_min=-0.05, n_max=0.05)
-        self.observations.policy.joint_vel.noise = Unoise(n_min=-1.5, n_max=1.5)
         self.observations.policy.base_lin_vel.noise = Unoise(n_min=-0.2, n_max=0.2)
         self.observations.policy.base_ang_vel.noise = Unoise(n_min=-0.3, n_max=0.3)
+        self.observations.policy.joint_pos.noise = Unoise(n_min=-0.05, n_max=0.05)
+        self.observations.policy.joint_vel.noise = Unoise(n_min=-1.5, n_max=1.5)
         self.observations.policy.projected_gravity.noise = Unoise(n_min=-0.1, n_max=0.1)
+        # self.observations.policy.joint_pos.scale = 1.0
+        # self.observations.policy.joint_vel.scale = 0.05
+        # self.observations.policy.base_lin_vel.scale = 2.0
+        # self.observations.policy.base_ang_vel.scale = 0.25
 
         # rewards
         self.rewards.track_lin_vel_xy_exp.weight = 2.0  # default 1.0, haraduka: 1.0
         self.rewards.track_ang_vel_z_exp.weight = 0.9  # default 0.5, haraduka: 0.5
         self.rewards.lin_vel_z_l2.weight = -2.0  # default -2.0, haraduka: -10.0
         self.rewards.ang_vel_xy_l2.weight = -0.05  # default -0.05, haraduka: -0.1
-        self.rewards.dof_torques_l2.weight = -2.5e-5  # default -1.0e-5, haraduka: -1.0e-3
-        self.rewards.dof_acc_l2.weight = -2.0e-8  # default -2.5e-7, haraduka: -1.0e-4
-        self.rewards.action_rate_l2.weight = -0.01  # default -0.01, haraduka: -0.1
+        self.rewards.dof_torques_l2.weight = -1.0e-3  # default -1.0e-5, haraduka: -1.0e-3
+        self.rewards.dof_acc_l2.weight = -1.0e-6  # default -2.5e-7, haraduka: -1.0e-4
+        self.rewards.action_rate_l2.weight = -0.1  # default -0.01, haraduka: -0.1
         self.rewards.feet_air_time.params["sensor_cfg"].body_names = ".*_foot"
         self.rewards.feet_air_time.weight = 0.01  # default 0.125, haraduka: 0.001
         self.rewards.undesired_contacts = None
@@ -141,11 +153,11 @@ class MeviusRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         self.rewards.flat_orientation_l2.weight = -1.0  # default 0.0, haraduka: -10.0
         self.rewards.base_height_l2.weight = 0.00   # default -0.005, haraduka: None
         self.rewards.dof_pos_limits.weight = -10.0  # default 0.0, haraduka: -10.0
-        # self.rewards.dof_vel_l2.weight = -2.5e-8  # default None, haraduka: -1.0e-7
+        self.rewards.dof_vel_l2.weight = -1.0e-7  # default None, haraduka: -1.0e-7
 
-        self.rewards.stand_still.weight = 0.0  # default None, haraduka: -10.0
-        self.rewards.feet_stumble.weight = -0.0001  # default None, haraduka: None
-        self.rewards.gait.weight = 0.0 # default None, haraduka: None
+        self.rewards.stand_still.weight = -1.0  # default None, haraduka: -10.0
+        self.rewards.feet_stumble.weight = -0.01  # default None, haraduka: None
+        self.rewards.gait.weight = 0.2 # default None, haraduka: None
 
         # terminations
         self.terminations.base_contact.params["sensor_cfg"].body_names = ["base"]
