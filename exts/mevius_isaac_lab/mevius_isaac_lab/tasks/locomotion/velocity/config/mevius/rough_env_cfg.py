@@ -85,10 +85,12 @@ class MeviusRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         # switch robot to anymal-d
         self.scene.robot = MEVIUS_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
 
-        # self.scene.terrain.terrain_generator.num_rows = 20
-        self.scene.terrain.terrain_generator.sub_terrains["boxes"].grid_height_range = (0.025, 0.12) # (0.025, 0.1)
-        self.scene.terrain.terrain_generator.sub_terrains["random_rough"].noise_range = (0.01, 0.06)
+        self.scene.terrain.terrain_generator.num_rows = 20
+        self.scene.terrain.terrain_generator.sub_terrains["boxes"].grid_height_range = (0.025, 0.125)
+        self.scene.terrain.terrain_generator.sub_terrains["random_rough"].noise_range = (0.01, 0.09)
         self.scene.terrain.terrain_generator.sub_terrains["random_rough"].noise_step = 0.01
+        self.scene.terrain.terrain_generator.sub_terrains["pyramid_stairs"].step_height_range = (0.02, 0.18)
+        self.scene.terrain.terrain_generator.sub_terrains["pyramid_stairs_inv"].step_height_range = (0.02, 0.18)
 
         # reduce action scale
         self.actions.joint_pos.scale = 0.5
