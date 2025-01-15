@@ -152,7 +152,7 @@ class MeviusRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         self.rewards.dof_acc_l2.weight = -1.0e-8  # default -2.5e-7, haraduka: -1.0e-4
         self.rewards.action_rate_l2.weight = -0.1  # default -0.01, haraduka: -0.1
         self.rewards.feet_air_time.params["sensor_cfg"].body_names = ".*_foot"
-        self.rewards.feet_air_time.weight = 0.01  # default 0.125, haraduka: 0.001
+        self.rewards.feet_air_time.weight = 0.1  # default 0.125, haraduka: 0.001
         # self.rewards.undesired_contacts = None
         self.rewards.undesired_contacts.params["sensor_cfg"].body_names = [".*_thigh", ".*_calf"]
         self.rewards.undesired_contacts.weight = -1.0  # default -1.0, haraduka: None
