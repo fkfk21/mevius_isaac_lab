@@ -29,16 +29,12 @@ T_MOTOR_AK70_10_CFG = DelayedPDActuatorCfg(
     effort_limit=24.8,
     velocity_limit=15.5,  # [rad/s] = 148 [rpm]
     # action scale: 0.5
-    # stiffness={".*_collar_joint": 50.0, ".*_hip_joint": 50.0, ".*_knee_joint": 40.0},
-    # damping={".*_collar_joint": 1.3, ".*_hip_joint": 1.3, ".*_knee_joint": 0.1},
-
-    # action scale: 0.3
-    # stiffness={".*_collar_joint": 25.0, ".*_hip_joint": 25.0, ".*_knee_joint": 25.0},
-    # damping={".*_collar_joint": 0.5, ".*_hip_joint": 0.5, ".*_knee_joint": 0.5},
-
-    # action scale: 0.3
     stiffness={".*_collar_joint": 30.0, ".*_hip_joint": 30.0, ".*_knee_joint": 25.0},
     damping={".*_collar_joint": 0.8, ".*_hip_joint": 0.8, ".*_knee_joint": 0.5},
+
+    # action scale: 0.5
+    # stiffness={".*_collar_joint": 50.0, ".*_hip_joint": 50.0, ".*_knee_joint": 30.0},
+    # damping={".*_collar_joint": 2.0, ".*_hip_joint": 2.0, ".*_knee_joint": 0.5},
     min_delay=1,  # 0.05*1 = 0.05 [s]
     max_delay=6,  # 0.05*6 = 0.30 [s]
 )
@@ -48,6 +44,14 @@ T_MOTOR_AK70_10_CFG = DelayedPDActuatorCfg(
 # Configuration - Articulation.
 ##
 import os
+
+MEVIUS_JOINT_NAMES = [
+    "BL_collar_joint", "BL_hip_joint", "BL_knee_joint",
+    "BR_collar_joint", "BR_hip_joint", "BR_knee_joint",
+    "FL_collar_joint", "FL_hip_joint", "FL_knee_joint",
+    "FR_collar_joint", "FR_hip_joint", "FR_knee_joint",
+]
+
 MEVIUS_ASSETS_BASEPATH = os.path.dirname(__file__) 
 MEVIUS_CFG = ArticulationCfg(
     spawn=sim_utils.UsdFileCfg(
@@ -67,7 +71,7 @@ MEVIUS_CFG = ArticulationCfg(
         ),
     ),
     init_state=ArticulationCfg.InitialStateCfg(
-        pos=(0.0, 0.0, 0.33),  # x,y,z [m]
+        pos=(0.0, 0.0, 0.40),  # x,y,z [m]
         joint_pos={  # = target angles [rad] when action = 0.0
             '[F,B]R_collar_joint': -0.1,
             '[F,B]L_collar_joint': 0.1,
@@ -86,12 +90,3 @@ Note:
     Since we don't have a publicly available actuator network for ANYmal-D, we use the same network as ANYmal-C.
     This may impact the sim-to-real transfer performance.
 """
-
-
-##
-# Configuration - Sensors.
-##
-# MEVIUS_REALSENSE = CameraCfg(
-
-# )
-# """Configuration for the Realsense T265 mounted on the mevius robot's base."""

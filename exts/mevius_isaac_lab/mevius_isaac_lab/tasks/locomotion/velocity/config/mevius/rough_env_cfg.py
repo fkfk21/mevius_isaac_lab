@@ -3,15 +3,16 @@ from omni.isaac.lab.managers.scene_entity_cfg import SceneEntityCfg
 from omni.isaac.lab.utils import configclass
 from omni.isaac.lab.managers import RewardTermCfg as RewTerm
 from mevius_isaac_lab.tasks.locomotion.velocity.velocity_env_cfg import (
-  LocomotionVelocityRoughEnvCfg,
-  RewardsCfg,
-  MySceneCfg,
-  ObservationsCfg
+    LocomotionVelocityRoughEnvCfg,
+    MySceneCfg,
+    RewardsCfg,
+    ObservationsCfg,
 )
 import omni.isaac.lab_tasks.manager_based.locomotion.velocity.config.spot.mdp as spot_mdp
 from omni.isaac.lab.utils.noise import AdditiveUniformNoiseCfg as Unoise
 from mevius_isaac_lab.tasks.locomotion.velocity import mdp
-from mevius_isaac_lab.assets.mevius import MEVIUS_CFG
+from mevius_isaac_lab.assets.mevius import MEVIUS_CFG, MEVIUS_JOINT_NAMES
+
 
 @configclass
 class MeviusRewardsCfg(RewardsCfg):
@@ -23,10 +24,10 @@ class MeviusRewardsCfg(RewardsCfg):
             "target_height": 0.3,
         }
     )
-    # dof_vel_l2 = RewTerm(
-    #     func=mdp.joint_vel_l2,
-    #     weight=0.0,
-    # )
+    dof_vel_l2 = RewTerm(
+        func=mdp.joint_vel_l2,
+        weight=0.0,
+    )
     feet_stumble = RewTerm(
         func=mdp.feet_stumble,
         weight=0.0,
@@ -55,11 +56,51 @@ class MeviusRewardsCfg(RewardsCfg):
         }
     )
     
+    def __post_init__(self):
+        super().__post_init__()
+
+        # set the parameters to match the hardware
+        self.undesired_contacts.params["sensor_cfg"].body_names = [".*_thigh", ".*_calf"]
+        self.feet_air_time.params["sensor_cfg"].body_names = ".*_foot"
+
+        # weights
+        self.track_lin_vel_xy_exp.weight = 2.0
+        self.track_ang_vel_z_exp.weight  = 0.9
+        self.lin_vel_z_l2.weight         = -2.0
+        self.ang_vel_xy_l2.weight        = -0.05
+        self.dof_torques_l2.weight       = -1.0e-4
+        self.dof_acc_l2.weight           = -1.0e-8
+        self.action_rate_l2.weight       = -0.1
+        self.feet_air_time.weight        = 0.1
+        self.undesired_contacts.weight   = -1.0
+        self.flat_orientation_l2.weight  = -1.0
+        self.base_height_l2.weight       = 0.00
+        self.dof_pos_limits.weight       = -10.0
+        self.dof_vel_l2.weight           = -1.0e-7
+        self.stand_still.weight          = -1.0
+        self.feet_stumble.weight         = -0.01
+        self.gait.weight                 = 0.3
+
+        # self.track_ang_vel_z_exp.params["std"] = math.sqrt(0.15)
 
 
 @configclass
 class MeviusSceneCfg(MySceneCfg):
     height_scanner = None
+
+    def __post_init__(self):
+        super().__post_init__()
+
+        # set the robot as mevius
+        self.robot = MEVIUS_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
+
+        # terrain parameter settings
+        self.terrain.terrain_generator.num_rows = 20
+        self.terrain.terrain_generator.sub_terrains["boxes"].grid_height_range = (0.025, 0.125)
+        self.terrain.terrain_generator.sub_terrains["random_rough"].noise_range = (0.01, 0.09)
+        self.terrain.terrain_generator.sub_terrains["random_rough"].noise_step = 0.01
+        self.terrain.terrain_generator.sub_terrains["pyramid_stairs"].step_height_range = (0.02, 0.18)
+        self.terrain.terrain_generator.sub_terrains["pyramid_stairs_inv"].step_height_range = (0.02, 0.18)
 
 
 @configclass
@@ -71,28 +112,55 @@ class MeviusObservationsCfg(ObservationsCfg):
 
     policy: PolicyCfg = PolicyCfg()
 
+    def __post_init__(self):
+        super().__post_init__()
+
+        # set the parameters to match the hardware
+        self.policy.joint_pos.params = {
+            "asset_cfg": SceneEntityCfg("robot", joint_names=MEVIUS_JOINT_NAMES, preserve_order=True)
+        }
+        self.policy.joint_vel.params = {
+            "asset_cfg": SceneEntityCfg("robot", joint_names=MEVIUS_JOINT_NAMES, preserve_order=True)
+        }
+
+        # add noise to the observations
+        self.policy.base_lin_vel.noise      = Unoise(n_min=-0.2, n_max=0.2)
+        self.policy.base_ang_vel.noise      = Unoise(n_min=-0.3, n_max=0.3)
+        self.policy.joint_pos.noise         = Unoise(n_min=-0.05, n_max=0.05)
+        self.policy.joint_vel.noise         = Unoise(n_min=-1.5, n_max=1.5)
+        self.policy.projected_gravity.noise = Unoise(n_min=-0.1, n_max=0.1)
+
+        # scale observations
+        self.policy.joint_pos.scale    = 1.0
+        self.policy.joint_vel.scale    = 0.05
+        self.policy.base_lin_vel.scale = 2.0
+        self.policy.base_ang_vel.scale = 0.25
+
+        # clip observations
+        self.policy.base_lin_vel.clip      = (-100.0, 100.0)
+        self.policy.base_ang_vel.clip      = (-100.0, 100.0)
+        self.policy.velocity_commands.clip = (-100.0, 100.0)
+        self.policy.joint_pos.clip         = (-100.0, 100.0)
+        self.policy.joint_vel.clip         = (-100.0, 100.0)
+        self.policy.actions.clip           = (-100.0, 100.0)
+
 
 @configclass
 class MeviusRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
     scene: MeviusSceneCfg = MeviusSceneCfg(num_envs=2048, env_spacing=2.5)
-    observations: MeviusObservationsCfg = MeviusObservationsCfg()
     rewards: MeviusRewardsCfg = MeviusRewardsCfg()
+    observations: MeviusObservationsCfg = MeviusObservationsCfg()
 
     def __post_init__(self):
-        # post init of parent
         super().__post_init__()
-        # switch robot to anymal-d
-        self.scene.robot = MEVIUS_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
 
-        # self.scene.terrain.terrain_generator.num_rows = 20
-        self.scene.terrain.terrain_generator.sub_terrains["boxes"].grid_height_range = (0.025, 0.12) # (0.025, 0.1)
-        self.scene.terrain.terrain_generator.sub_terrains["random_rough"].noise_range = (0.01, 0.06)
-        self.scene.terrain.terrain_generator.sub_terrains["random_rough"].noise_step = 0.01
+        # actions
+        self.actions.joint_pos.scale = 0.5
+        self.actions.joint_pos.joint_names = MEVIUS_JOINT_NAMES
+        self.actions.joint_pos.preserve_order = True
+        self.actions.joint_pos.clip = {".*": (-30.0, 30.0) }
 
-        # reduce action scale
-        self.actions.joint_pos.scale = 0.3
-
-        # event
+        # events
         self.events.physics_material.params["static_friction_range"] = (0.7, 1.2)
         self.events.physics_material.params["dynamic_friction_range"] = (0.6, 1.0)
         self.events.add_base_mass.params["mass_distribution_params"] = (-1.0, 3.0)
@@ -113,43 +181,13 @@ class MeviusRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
 
         # commands
         self.commands.base_velocity.heading_command = False
-        self.commands.base_velocity.ranges.lin_vel_x = (-0.7, 0.7)
-        self.commands.base_velocity.ranges.lin_vel_y = (-0.4, 0.4)
-        self.commands.base_velocity.ranges.ang_vel_z = (-0.3, 0.3)
-        self.commands.base_velocity.ranges.heading = (-math.pi, math.pi)
-
-        # observations
-        self.observations.policy.joint_pos.noise = Unoise(n_min=-0.05, n_max=0.05)
-        self.observations.policy.joint_vel.noise = Unoise(n_min=-1.5, n_max=1.5)
-        self.observations.policy.base_lin_vel.noise = Unoise(n_min=-0.2, n_max=0.2)
-        self.observations.policy.base_ang_vel.noise = Unoise(n_min=-0.3, n_max=0.3)
-        self.observations.policy.projected_gravity.noise = Unoise(n_min=-0.1, n_max=0.1)
-
-        # rewards
-        self.rewards.track_lin_vel_xy_exp.weight = 2.0  # default 1.0, haraduka: 1.0
-        self.rewards.track_ang_vel_z_exp.weight = 0.9  # default 0.5, haraduka: 0.5
-        self.rewards.lin_vel_z_l2.weight = -2.0  # default -2.0, haraduka: -10.0
-        self.rewards.ang_vel_xy_l2.weight = -0.05  # default -0.05, haraduka: -0.1
-        self.rewards.dof_torques_l2.weight = -2.5e-5  # default -1.0e-5, haraduka: -1.0e-3
-        self.rewards.dof_acc_l2.weight = -2.0e-8  # default -2.5e-7, haraduka: -1.0e-4
-        self.rewards.action_rate_l2.weight = -0.01  # default -0.01, haraduka: -0.1
-        self.rewards.feet_air_time.params["sensor_cfg"].body_names = ".*_foot"
-        self.rewards.feet_air_time.weight = 0.01  # default 0.125, haraduka: 0.001
-        self.rewards.undesired_contacts = None
-        # self.rewards.undesired_contacts.params["sensor_cfg"].body_names = ["base", ".*_thigh", ".*_scapula"]
-        # self.rewards.undesired_contacts.weight = 0.0  # default -1.0, haraduka: None
-        self.rewards.flat_orientation_l2.weight = -1.0  # default 0.0, haraduka: -10.0
-        self.rewards.base_height_l2.weight = 0.00   # default -0.005, haraduka: None
-        self.rewards.dof_pos_limits.weight = -10.0  # default 0.0, haraduka: -10.0
-        # self.rewards.dof_vel_l2.weight = -2.5e-8  # default None, haraduka: -1.0e-7
-
-        self.rewards.stand_still.weight = 0.0  # default None, haraduka: -10.0
-        self.rewards.feet_stumble.weight = -0.0001  # default None, haraduka: None
-        self.rewards.gait.weight = 0.0 # default None, haraduka: None
+        self.commands.base_velocity.ranges.lin_vel_x = (-1.0, 1.0)
+        self.commands.base_velocity.ranges.lin_vel_y = (-0.7, 0.7)
+        self.commands.base_velocity.ranges.ang_vel_z = (-0.5, 0.5)
 
         # terminations
         self.terminations.base_contact.params["sensor_cfg"].body_names = ["base"]
-        # self.terminations.base_contact.params["sensor_cfg"].body_names = ["base", ".*_thigh", ".*_scapula"]
+
 
 import omni.isaac.lab.terrains as terrain_gen
 
@@ -184,7 +222,6 @@ class MeviusRoughEnvCfg_PLAY(MeviusRoughEnvCfg):
         self.scene.terrain.terrain_generator.sub_terrains["rails"] = terrain_gen.MeshRailsTerrainCfg(
             proportion=0.2, platform_width=4.0, size=(5.0, 5.0), rail_height_range=(0.1, 0.1), rail_thickness_range=(0.3, 0.4), 
         )
-
         #######
 
         # disable randomization for play
