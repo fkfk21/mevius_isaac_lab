@@ -71,17 +71,17 @@ class MeviusRewardsCfg(RewardsCfg):
         self.dof_torques_l2.weight       = -1.0e-4
         self.dof_acc_l2.weight           = -1.0e-8
         self.action_rate_l2.weight       = -0.1
-        self.feet_air_time.weight        = 0.01
-        self.undesired_contacts.weight   = -2.0
+        self.feet_air_time.weight        = 0.1
+        self.undesired_contacts.weight   = -1.0
         self.flat_orientation_l2.weight  = -1.0
         self.base_height_l2.weight       = 0.00
         self.dof_pos_limits.weight       = -10.0
         self.dof_vel_l2.weight           = -1.0e-7
         self.stand_still.weight          = -1.0
-        self.feet_stumble.weight         = -0.03
+        self.feet_stumble.weight         = -0.01
         self.gait.weight                 = 0.3
 
-        self.track_ang_vel_z_exp.params["std"] = math.sqrt(0.15)
+        # self.track_ang_vel_z_exp.params["std"] = math.sqrt(0.15)
 
 
 @configclass
@@ -182,8 +182,8 @@ class MeviusRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         # commands
         self.commands.base_velocity.heading_command = False
         self.commands.base_velocity.ranges.lin_vel_x = (-1.0, 1.0)
-        self.commands.base_velocity.ranges.lin_vel_y = (-0.8, 0.8)
-        self.commands.base_velocity.ranges.ang_vel_z = (-0.8, 0.8)
+        self.commands.base_velocity.ranges.lin_vel_y = (-0.7, 0.7)
+        self.commands.base_velocity.ranges.ang_vel_z = (-0.5, 0.5)
 
         # terminations
         self.terminations.base_contact.params["sensor_cfg"].body_names = ["base"]
