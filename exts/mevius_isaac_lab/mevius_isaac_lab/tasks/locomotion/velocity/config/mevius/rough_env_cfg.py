@@ -65,20 +65,20 @@ class MeviusRewardsCfg(RewardsCfg):
         self.feet_air_time.params["sensor_cfg"].body_names = ".*_foot"
 
         # weights
-        self.track_lin_vel_xy_exp.weight = 1.0
-        self.track_ang_vel_z_exp.weight  = 0.5
+        self.track_lin_vel_xy_exp.weight = 2.0
+        self.track_ang_vel_z_exp.weight  = 1.0
         self.lin_vel_z_l2.weight         = -2.0
         self.ang_vel_xy_l2.weight        = -0.05
         self.dof_torques_l2.weight       = -1.0e-5
-        self.dof_acc_l2.weight           = -2.5e-7
-        self.action_rate_l2.weight       = -0.01
-        self.feet_air_time.weight        = 0.01
+        self.dof_acc_l2.weight           = -1.0e-7
+        self.action_rate_l2.weight       = -0.3
+        self.feet_air_time.weight        = 0.05
         self.undesired_contacts.weight   = -1.0
         self.flat_orientation_l2.weight  = -0.0
         self.base_height_l2.weight       = 0.00
-        self.dof_pos_limits.weight       = -0.0
-        self.dof_vel_l2.weight           =  0.0 # -0.0e-4
-        self.stand_still.weight          =  0.0
+        self.dof_pos_limits.weight       = -1.0
+        self.dof_vel_l2.weight           = -1.0e-5
+        self.stand_still.weight          = -0.0
         self.feet_stumble.weight         = -0.0
         self.gait.weight                 = 0.0
 
