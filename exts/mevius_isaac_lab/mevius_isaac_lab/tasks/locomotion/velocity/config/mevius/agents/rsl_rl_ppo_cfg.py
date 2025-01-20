@@ -16,13 +16,17 @@ from omni.isaac.lab_tasks.utils.wrappers.rsl_rl import (
 class MeviusRoughPPORunnerCfg(RslRlOnPolicyRunnerCfg):
     num_steps_per_env = 24
     max_iterations = 1500
-    save_interval = 50
+    save_interval = 200
     experiment_name = "mevius_rough"
     empirical_normalization = False
     policy = RslRlPpoActorCriticCfg(
         init_noise_std=1.0,
-        actor_hidden_dims=[512, 256, 128],
-        critic_hidden_dims=[512, 256, 128],
+        # actor_hidden_dims=[512, 256, 128],
+        # critic_hidden_dims=[512, 256, 128],
+        # actor_hidden_dims=[256, 128, 64],
+        # critic_hidden_dims=[256, 128, 64],
+        actor_hidden_dims=[128, 64, 32],
+        critic_hidden_dims=[128, 64, 32],
         activation="elu",
     )
     algorithm = RslRlPpoAlgorithmCfg(
@@ -48,5 +52,9 @@ class MeviusFlatPPORunnerCfg(MeviusRoughPPORunnerCfg):
 
         self.max_iterations = 300
         self.experiment_name = "mevius_flat"
-        self.policy.actor_hidden_dims = [512, 256, 128]
-        self.policy.critic_hidden_dims = [512, 256, 128]
+        # self.policy.actor_hidden_dims = [512, 256, 128]
+        # self.policy.critic_hidden_dims = [512, 256, 128]
+        # self.policy.actor_hidden_dims = [256, 128, 64]
+        # self.policy.critic_hidden_dims = [256, 128, 64]
+        self.policy.actor_hidden_dims = [128, 64, 32]
+        self.policy.critic_hidden_dims = [128, 64, 32]

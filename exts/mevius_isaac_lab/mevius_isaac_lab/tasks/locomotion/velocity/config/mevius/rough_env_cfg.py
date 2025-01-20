@@ -10,6 +10,7 @@ from mevius_isaac_lab.tasks.locomotion.velocity.velocity_env_cfg import (
 )
 import omni.isaac.lab_tasks.manager_based.locomotion.velocity.config.spot.mdp as spot_mdp
 from omni.isaac.lab.utils.noise import AdditiveUniformNoiseCfg as Unoise
+import omni.isaac.lab.terrains as terrain_gen
 from mevius_isaac_lab.tasks.locomotion.velocity import mdp
 from mevius_isaac_lab.assets.mevius import MEVIUS_CFG, MEVIUS_JOINT_NAMES
 
@@ -64,24 +65,24 @@ class MeviusRewardsCfg(RewardsCfg):
         self.feet_air_time.params["sensor_cfg"].body_names = ".*_foot"
 
         # weights
-        self.track_lin_vel_xy_exp.weight = 2.0
-        self.track_ang_vel_z_exp.weight  = 0.9
+        self.track_lin_vel_xy_exp.weight = 1.0
+        self.track_ang_vel_z_exp.weight  = 0.5
         self.lin_vel_z_l2.weight         = -2.0
         self.ang_vel_xy_l2.weight        = -0.05
-        self.dof_torques_l2.weight       = -1.0e-4
-        self.dof_acc_l2.weight           = -1.0e-8
-        self.action_rate_l2.weight       = -0.1
-        self.feet_air_time.weight        = 0.1
+        self.dof_torques_l2.weight       = -1.0e-5
+        self.dof_acc_l2.weight           = -2.5e-7
+        self.action_rate_l2.weight       = -0.01
+        self.feet_air_time.weight        = 0.01
         self.undesired_contacts.weight   = -1.0
-        self.flat_orientation_l2.weight  = -1.0
+        self.flat_orientation_l2.weight  = -0.0
         self.base_height_l2.weight       = 0.00
-        self.dof_pos_limits.weight       = -10.0
-        self.dof_vel_l2.weight           = -1.0e-7
-        self.stand_still.weight          = -1.0
-        self.feet_stumble.weight         = -0.01
-        self.gait.weight                 = 0.3
+        self.dof_pos_limits.weight       = -0.0
+        self.dof_vel_l2.weight           =  0.0 # -0.0e-4
+        self.stand_still.weight          =  0.0
+        self.feet_stumble.weight         = -0.0
+        self.gait.weight                 = 0.0
 
-        # self.track_ang_vel_z_exp.params["std"] = math.sqrt(0.15)
+        # self.track_ang_vel_z_exp.params["std"] = math.sqrt(0.1)
 
 
 @configclass
@@ -95,12 +96,13 @@ class MeviusSceneCfg(MySceneCfg):
         self.robot = MEVIUS_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
 
         # terrain parameter settings
+        self.terrain.max_init_terrain_level = 5
         self.terrain.terrain_generator.num_rows = 20
-        self.terrain.terrain_generator.sub_terrains["boxes"].grid_height_range = (0.025, 0.125)
-        self.terrain.terrain_generator.sub_terrains["random_rough"].noise_range = (0.01, 0.09)
+        self.terrain.terrain_generator.sub_terrains["boxes"].grid_height_range = (0.025, 0.08)
+        self.terrain.terrain_generator.sub_terrains["random_rough"].noise_range = (0.01, 0.03)
         self.terrain.terrain_generator.sub_terrains["random_rough"].noise_step = 0.01
-        self.terrain.terrain_generator.sub_terrains["pyramid_stairs"].step_height_range = (0.02, 0.18)
-        self.terrain.terrain_generator.sub_terrains["pyramid_stairs_inv"].step_height_range = (0.02, 0.18)
+        self.terrain.terrain_generator.sub_terrains["pyramid_stairs"].step_height_range = (0.02, 0.10)
+        self.terrain.terrain_generator.sub_terrains["pyramid_stairs_inv"].step_height_range = (0.02, 0.10)
 
 
 @configclass
@@ -142,7 +144,7 @@ class MeviusObservationsCfg(ObservationsCfg):
         self.policy.velocity_commands.clip = (-100.0, 100.0)
         self.policy.joint_pos.clip         = (-100.0, 100.0)
         self.policy.joint_vel.clip         = (-100.0, 100.0)
-        self.policy.actions.clip           = (-100.0, 100.0)
+        self.policy.actions.clip           = ( -10.0,  10.0)
 
 
 @configclass
@@ -158,7 +160,7 @@ class MeviusRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         self.actions.joint_pos.scale = 0.5
         self.actions.joint_pos.joint_names = MEVIUS_JOINT_NAMES
         self.actions.joint_pos.preserve_order = True
-        self.actions.joint_pos.clip = {".*": (-30.0, 30.0) }
+        self.actions.joint_pos.clip = {".*": (-10.0, 10.0) }
 
         # events
         self.events.physics_material.params["static_friction_range"] = (0.7, 1.2)
@@ -166,7 +168,7 @@ class MeviusRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         self.events.add_base_mass.params["mass_distribution_params"] = (-1.0, 3.0)
         self.events.add_base_mass.params["asset_cfg"].body_names = "base"
         self.events.base_external_force_torque.params["asset_cfg"].body_names = "base"
-        self.events.reset_robot_joints.params["position_range"] = (1.0, 1.0)
+        self.events.reset_robot_joints.params["position_range"] = (0.9, 1.1)
         self.events.reset_base.params = {
             "pose_range": {"x": (-0.5, 0.5), "y": (-0.5, 0.5), "yaw": (-3.14, 3.14)},
             "velocity_range": {
@@ -181,15 +183,24 @@ class MeviusRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
 
         # commands
         self.commands.base_velocity.heading_command = False
-        self.commands.base_velocity.ranges.lin_vel_x = (-1.0, 1.0)
-        self.commands.base_velocity.ranges.lin_vel_y = (-0.7, 0.7)
-        self.commands.base_velocity.ranges.ang_vel_z = (-0.5, 0.5)
+        self.commands.base_velocity.ranges.lin_vel_x = (-0.7, 0.7)
+        self.commands.base_velocity.ranges.lin_vel_y = (-0.5, 0.5)
+        self.commands.base_velocity.ranges.ang_vel_z = (-0.7, 0.7)
 
         # terminations
         self.terminations.base_contact.params["sensor_cfg"].body_names = ["base"]
 
 
-import omni.isaac.lab.terrains as terrain_gen
+@configclass
+class MeviusRoughStrictEnvCfg(MeviusRoughEnvCfg):
+
+    def __post_init__(self):
+        super().__post_init__()
+
+        self.commands.base_velocity.ranges.lin_vel_x = (-1.0, 1.0)
+        self.commands.base_velocity.ranges.lin_vel_y = (-1.0, 1.0)
+        self.commands.base_velocity.ranges.ang_vel_z = (-1.0, 1.0)
+
 
 @configclass
 class MeviusRoughEnvCfg_PLAY(MeviusRoughEnvCfg):
