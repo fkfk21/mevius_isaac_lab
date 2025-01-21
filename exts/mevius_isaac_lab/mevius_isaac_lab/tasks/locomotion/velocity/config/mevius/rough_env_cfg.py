@@ -218,22 +218,6 @@ class MeviusRoughEnvCfg_PLAY(MeviusRoughEnvCfg):
             self.scene.terrain.terrain_generator.num_rows = 5
             self.scene.terrain.terrain_generator.num_cols = 5
             self.scene.terrain.terrain_generator.curriculum = False
-        
-        ####### additional change
-        self.scene.terrain.terrain_generator.size = (8.0, 8.0)
-        self.scene.terrain.terrain_generator.sub_terrains["pyramid_stairs"].step_height_range = (0.1, 0.1)
-        self.scene.terrain.terrain_generator.sub_terrains["pyramid_stairs"].proportion = 0.3
-        self.scene.terrain.terrain_generator.sub_terrains["pyramid_stairs_inv"].step_height_range = (0.1, 0.1)
-        self.scene.terrain.terrain_generator.sub_terrains["pyramid_stairs_inv"].step_height_range = (0.1, 0.1)
-        self.scene.terrain.terrain_generator.sub_terrains["pyramid_stairs_inv"].proportion = 0.3
-        self.scene.terrain.terrain_generator.sub_terrains["boxes"].proportion = 0.0
-        self.scene.terrain.terrain_generator.sub_terrains["random_rough"].proportion = 0.0
-        self.scene.terrain.terrain_generator.sub_terrains["hf_pyramid_slope"].proportion = 0.0
-        self.scene.terrain.terrain_generator.sub_terrains["hf_pyramid_slope_inv"].proportion = 0.0
-        self.scene.terrain.terrain_generator.sub_terrains["rails"] = terrain_gen.MeshRailsTerrainCfg(
-            proportion=0.2, platform_width=4.0, size=(5.0, 5.0), rail_height_range=(0.1, 0.1), rail_thickness_range=(0.3, 0.4), 
-        )
-        #######
 
         # disable randomization for play
         self.observations.policy.enable_corruption = False
