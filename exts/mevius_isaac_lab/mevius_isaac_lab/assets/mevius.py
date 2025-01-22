@@ -28,7 +28,7 @@ T_MOTOR_AK70_10_CFG = DelayedPDActuatorCfg(
     joint_names_expr=[".*_collar_joint", ".*_hip_joint", ".*_knee_joint"],
     effort_limit=24.8,
     # velocity_limit=15.5,  # [rad/s] = 148 [rpm]
-    velocity_limit=20.0,  # [rad/s] = 148 [rpm]
+    velocity_limit=20.9,  # [rad/s] = 200 [rpm]
     # action scale: 0.5
     # stiffness={".*_collar_joint": 30.0, ".*_hip_joint": 30.0, ".*_knee_joint": 25.0},
     # damping={".*_collar_joint": 0.8, ".*_hip_joint": 0.8, ".*_knee_joint": 0.5},

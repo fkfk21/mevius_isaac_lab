@@ -70,8 +70,8 @@ class MeviusRewardsCfg(RewardsCfg):
         self.lin_vel_z_l2.weight         = -2.0
         self.ang_vel_xy_l2.weight        = -0.05
         self.dof_torques_l2.weight       = -1.0e-5
-        self.dof_acc_l2.weight           = -1.0e-7
-        self.action_rate_l2.weight       = -0.3
+        self.dof_acc_l2.weight           = -2.5e-7
+        self.action_rate_l2.weight       = -0.1
         self.feet_air_time.weight        = 0.05
         self.undesired_contacts.weight   = -1.0
         self.flat_orientation_l2.weight  = -0.0
@@ -97,12 +97,19 @@ class MeviusSceneCfg(MySceneCfg):
 
         # terrain parameter settings
         self.terrain.max_init_terrain_level = 5
+        # self.terrain.max_init_terrain_level = 15
         self.terrain.terrain_generator.num_rows = 20
         self.terrain.terrain_generator.sub_terrains["boxes"].grid_height_range = (0.025, 0.08)
         self.terrain.terrain_generator.sub_terrains["random_rough"].noise_range = (0.01, 0.03)
         self.terrain.terrain_generator.sub_terrains["random_rough"].noise_step = 0.01
         self.terrain.terrain_generator.sub_terrains["pyramid_stairs"].step_height_range = (0.02, 0.10)
         self.terrain.terrain_generator.sub_terrains["pyramid_stairs_inv"].step_height_range = (0.02, 0.10)
+
+        # self.terrain.terrain_generator.sub_terrains["boxes"].grid_height_range = (0.025, 0.10)
+        # self.terrain.terrain_generator.sub_terrains["random_rough"].noise_range = (0.01, 0.07)
+        # self.terrain.terrain_generator.sub_terrains["random_rough"].noise_step = 0.01
+        # self.terrain.terrain_generator.sub_terrains["pyramid_stairs"].step_height_range = (0.02, 0.15)
+        # self.terrain.terrain_generator.sub_terrains["pyramid_stairs_inv"].step_height_range = (0.02, 0.15)
 
 
 @configclass
@@ -183,6 +190,10 @@ class MeviusRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
 
         # commands
         self.commands.base_velocity.heading_command = False
+        # self.commands.base_velocity.ranges.lin_vel_x = (-1.0, 1.0)
+        # self.commands.base_velocity.ranges.lin_vel_y = (-1.0, 1.0)
+        # self.commands.base_velocity.ranges.ang_vel_z = (-1.0, 1.0)
+
         self.commands.base_velocity.ranges.lin_vel_x = (-0.7, 0.7)
         self.commands.base_velocity.ranges.lin_vel_y = (-0.5, 0.5)
         self.commands.base_velocity.ranges.ang_vel_z = (-0.7, 0.7)

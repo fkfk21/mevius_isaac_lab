@@ -23,10 +23,10 @@ class MeviusRoughPPORunnerCfg(RslRlOnPolicyRunnerCfg):
         init_noise_std=1.0,
         # actor_hidden_dims=[512, 256, 128],
         # critic_hidden_dims=[512, 256, 128],
-        # actor_hidden_dims=[256, 128, 64],
-        # critic_hidden_dims=[256, 128, 64],
-        actor_hidden_dims=[128, 64, 32],
-        critic_hidden_dims=[128, 64, 32],
+        actor_hidden_dims=[256, 128, 64],
+        critic_hidden_dims=[256, 128, 64],
+        # actor_hidden_dims=[128, 64, 32],
+        # critic_hidden_dims=[128, 64, 32],
         activation="elu",
     )
     algorithm = RslRlPpoAlgorithmCfg(
@@ -52,9 +52,3 @@ class MeviusFlatPPORunnerCfg(MeviusRoughPPORunnerCfg):
 
         self.max_iterations = 300
         self.experiment_name = "mevius_flat"
-        # self.policy.actor_hidden_dims = [512, 256, 128]
-        # self.policy.critic_hidden_dims = [512, 256, 128]
-        # self.policy.actor_hidden_dims = [256, 128, 64]
-        # self.policy.critic_hidden_dims = [256, 128, 64]
-        self.policy.actor_hidden_dims = [128, 64, 32]
-        self.policy.critic_hidden_dims = [128, 64, 32]
