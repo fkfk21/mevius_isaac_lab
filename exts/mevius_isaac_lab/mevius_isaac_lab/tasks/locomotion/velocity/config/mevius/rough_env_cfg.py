@@ -105,13 +105,6 @@ class MeviusSceneCfg(MySceneCfg):
         self.terrain.terrain_generator.sub_terrains["pyramid_stairs"].step_height_range = (0.02, 0.10)
         self.terrain.terrain_generator.sub_terrains["pyramid_stairs_inv"].step_height_range = (0.02, 0.10)
 
-        # self.terrain.terrain_generator.sub_terrains["boxes"].grid_height_range = (0.025, 0.10)
-        # self.terrain.terrain_generator.sub_terrains["random_rough"].noise_range = (0.01, 0.07)
-        # self.terrain.terrain_generator.sub_terrains["random_rough"].noise_step = 0.01
-        # self.terrain.terrain_generator.sub_terrains["pyramid_stairs"].step_height_range = (0.02, 0.15)
-        # self.terrain.terrain_generator.sub_terrains["pyramid_stairs_inv"].step_height_range = (0.02, 0.15)
-
-
 @configclass
 class MeviusObservationsCfg(ObservationsCfg):
 
@@ -199,14 +192,23 @@ class MeviusRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         self.commands.base_velocity.ranges.ang_vel_z = (-0.7, 0.7)
 
         # terminations
-        self.terminations.base_contact.params["sensor_cfg"].body_names = ["base"]
+        self.terminations.base_contact.params["sensor_cfg"].body_names = ["base",".*_scapula", ".*_thigh"]
+
+        # curriculum
+        # self.curriculum.terrain_levels = None
 
 
 @configclass
-class MeviusRoughStrictEnvCfg(MeviusRoughEnvCfg):
+class MeviusQuiteRoughEnvCfg(MeviusRoughEnvCfg):
 
     def __post_init__(self):
         super().__post_init__()
+
+        self.scene.terrain.terrain_generator.sub_terrains["boxes"].grid_height_range = (0.025, 0.10)
+        self.scene.terrain.terrain_generator.sub_terrains["random_rough"].noise_range = (0.01, 0.07)
+        self.scene.terrain.terrain_generator.sub_terrains["random_rough"].noise_step = 0.01
+        self.scene.terrain.terrain_generator.sub_terrains["pyramid_stairs"].step_height_range = (0.05, 0.15)
+        self.scene.terrain.terrain_generator.sub_terrains["pyramid_stairs_inv"].step_height_range = (0.05, 0.15)
 
         self.commands.base_velocity.ranges.lin_vel_x = (-1.0, 1.0)
         self.commands.base_velocity.ranges.lin_vel_y = (-1.0, 1.0)
@@ -215,6 +217,29 @@ class MeviusRoughStrictEnvCfg(MeviusRoughEnvCfg):
 
 @configclass
 class MeviusRoughEnvCfg_PLAY(MeviusRoughEnvCfg):
+    def __post_init__(self):
+        # post init of parent
+        super().__post_init__()
+
+        # make a smaller scene for play
+        self.scene.num_envs = 100
+        self.scene.env_spacing = 2.5
+        # spawn the robot randomly in the grid (instead of their terrain levels)
+        self.scene.terrain.max_init_terrain_level = None
+        # reduce the number of terrains to save memory
+        if self.scene.terrain.terrain_generator is not None:
+            self.scene.terrain.terrain_generator.num_rows = 5
+            self.scene.terrain.terrain_generator.num_cols = 5
+            self.scene.terrain.terrain_generator.curriculum = False
+
+        # disable randomization for play
+        self.observations.policy.enable_corruption = False
+        # remove random pushing event
+        self.events.base_external_force_torque = None
+        self.events.push_robot = None
+
+@configclass
+class MeviusQuiteRoughEnvCfg_PLAY(MeviusQuiteRoughEnvCfg):
     def __post_init__(self):
         # post init of parent
         super().__post_init__()
