@@ -34,7 +34,7 @@ class MeviusRewardsCfg(RewardsCfg):
         weight=0.0,
         params={
             "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_foot"),
-            "threshold_ratio": 5
+            "threshold_ratio": 3
         }
     )
     stand_still = RewTerm(
@@ -50,11 +50,15 @@ class MeviusRewardsCfg(RewardsCfg):
         params={
             "std": 0.1,
             "max_err": 0.2,
-            "velocity_threshold": 0.1,
+            "velocity_threshold": 0.3,
             "synced_feet_pair_names": (("FL_foot", "BR_foot"), ("FR_foot", "BL_foot")), 
             "asset_cfg": SceneEntityCfg("robot"),
             "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_foot"),
         }
+    )
+    alive = RewTerm(
+        func=mdp.is_alive,
+        weight=0.0,
     )
     
     def __post_init__(self):
@@ -65,24 +69,23 @@ class MeviusRewardsCfg(RewardsCfg):
         self.feet_air_time.params["sensor_cfg"].body_names = ".*_foot"
 
         # weights
-        self.track_lin_vel_xy_exp.weight = 2.0
-        self.track_ang_vel_z_exp.weight  = 1.0
+        self.track_lin_vel_xy_exp.weight = 1.0
+        self.track_ang_vel_z_exp.weight  = 0.5
         self.lin_vel_z_l2.weight         = -2.0
         self.ang_vel_xy_l2.weight        = -0.05
         self.dof_torques_l2.weight       = -1.0e-5
-        self.dof_acc_l2.weight           = -2.5e-7
+        self.dof_acc_l2.weight           = -1.0e-7
         self.action_rate_l2.weight       = -0.1
         self.feet_air_time.weight        = 0.05
         self.undesired_contacts.weight   = -1.0
         self.flat_orientation_l2.weight  = -0.0
         self.base_height_l2.weight       = 0.00
         self.dof_pos_limits.weight       = -1.0
-        self.dof_vel_l2.weight           = -1.0e-5
-        self.stand_still.weight          = -0.0
+        self.dof_vel_l2.weight           = -5.0e-7
+        self.stand_still.weight          = -2.0
         self.feet_stumble.weight         = -0.0
-        self.gait.weight                 = 0.0
-
-        # self.track_ang_vel_z_exp.params["std"] = math.sqrt(0.1)
+        self.gait.weight                 = 0.1
+        # self.alive.weight                = 0.5
 
 
 @configclass
