@@ -17,10 +17,9 @@ class MeviusFlatEnvCfg(MeviusRoughEnvCfg):
         self.events.physics_material.params["dynamic_friction_range"] = (0.6, 1.0)
 
         # reward scales
-        self.rewards.base_height_l2.weight = -0.01
-        self.rewards.flat_orientation_l2.weight = -2.5
-        self.rewards.feet_air_time.weight = 0.1
-        self.rewards.gait.weight = 0.3
+        # self.rewards.base_height_l2.weight = -0.01
+        # self.rewards.flat_orientation_l2.weight = -2.5
+        # self.rewards.stand_still.weight = -1.0
 
         # change terrain to flat
         self.scene.terrain.terrain_type = "plane"
