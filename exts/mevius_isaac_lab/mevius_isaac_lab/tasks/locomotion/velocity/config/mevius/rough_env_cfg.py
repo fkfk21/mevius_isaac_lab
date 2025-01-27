@@ -56,9 +56,15 @@ class MeviusRewardsCfg(RewardsCfg):
             "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_foot"),
         }
     )
-    alive = RewTerm(
-        func=mdp.is_alive,
+    feet_rhythm = RewTerm(
+        func=spot_mdp.air_time_reward,
         weight=0.0,
+        params={
+            "asset_cfg": SceneEntityCfg("robot"),
+            "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_foot"),
+            "mode_time": 0.4,
+            "velocity_threshold": 0.1,
+        }
     )
     
     def __post_init__(self):
@@ -85,7 +91,7 @@ class MeviusRewardsCfg(RewardsCfg):
         self.stand_still.weight          = -2.0
         self.feet_stumble.weight         = -0.0
         self.gait.weight                 = 0.1
-        # self.alive.weight                = 0.5
+        self.feet_rhythm.weight          = 0.1
 
 
 @configclass
