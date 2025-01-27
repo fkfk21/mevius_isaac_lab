@@ -103,7 +103,7 @@ class MeviusSceneCfg(MySceneCfg):
         # self.terrain.max_init_terrain_level = 15
         self.terrain.terrain_generator.num_rows = 20
         self.terrain.terrain_generator.sub_terrains["boxes"].grid_height_range = (0.025, 0.08)
-        self.terrain.terrain_generator.sub_terrains["random_rough"].noise_range = (0.01, 0.03)
+        self.terrain.terrain_generator.sub_terrains["random_rough"].noise_range = (0.01, 0.05)
         self.terrain.terrain_generator.sub_terrains["random_rough"].noise_step = 0.01
         self.terrain.terrain_generator.sub_terrains["pyramid_stairs"].step_height_range = (0.02, 0.10)
         self.terrain.terrain_generator.sub_terrains["pyramid_stairs_inv"].step_height_range = (0.02, 0.10)
@@ -132,7 +132,7 @@ class MeviusObservationsCfg(ObservationsCfg):
         self.policy.base_lin_vel.noise      = Unoise(n_min=-0.2, n_max=0.2)
         self.policy.base_ang_vel.noise      = Unoise(n_min=-0.3, n_max=0.3)
         self.policy.joint_pos.noise         = Unoise(n_min=-0.05, n_max=0.05)
-        self.policy.joint_vel.noise         = Unoise(n_min=-1.5, n_max=1.5)
+        self.policy.joint_vel.noise         = Unoise(n_min=-1.0, n_max=1.0)
         self.policy.projected_gravity.noise = Unoise(n_min=-0.1, n_max=0.1)
 
         # scale observations
@@ -147,7 +147,7 @@ class MeviusObservationsCfg(ObservationsCfg):
         self.policy.velocity_commands.clip = (-100.0, 100.0)
         self.policy.joint_pos.clip         = (-100.0, 100.0)
         self.policy.joint_vel.clip         = (-100.0, 100.0)
-        self.policy.actions.clip           = ( -10.0,  10.0)
+        self.policy.actions.clip           = (  -5.0,   5.0)
 
 
 @configclass
@@ -163,11 +163,11 @@ class MeviusRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         self.actions.joint_pos.scale = 0.5
         self.actions.joint_pos.joint_names = MEVIUS_JOINT_NAMES
         self.actions.joint_pos.preserve_order = True
-        self.actions.joint_pos.clip = {".*": (-10.0, 10.0) }
+        self.actions.joint_pos.clip = {".*": (-5.0, 5.0) }
 
         # events
-        self.events.physics_material.params["static_friction_range"] = (0.7, 1.2)
-        self.events.physics_material.params["dynamic_friction_range"] = (0.6, 1.0)
+        self.events.physics_material.params["static_friction_range"] = (0.7, 1.5)
+        self.events.physics_material.params["dynamic_friction_range"] = (0.6, 1.2)
         self.events.add_base_mass.params["mass_distribution_params"] = (-1.0, 3.0)
         self.events.add_base_mass.params["asset_cfg"].body_names = "base"
         self.events.base_external_force_torque.params["asset_cfg"].body_names = "base"
@@ -183,16 +183,16 @@ class MeviusRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
                 "yaw": (0.0, 0.0),
             },
         }
+        self.events.push_robot.params["velocity_range"] = {
+            "x": (-1.0, 1.0),
+            "y": (-1.0, 1.0),
+        }
 
         # commands
         self.commands.base_velocity.heading_command = False
-        # self.commands.base_velocity.ranges.lin_vel_x = (-1.0, 1.0)
-        # self.commands.base_velocity.ranges.lin_vel_y = (-1.0, 1.0)
-        # self.commands.base_velocity.ranges.ang_vel_z = (-1.0, 1.0)
-
-        self.commands.base_velocity.ranges.lin_vel_x = (-0.7, 0.7)
-        self.commands.base_velocity.ranges.lin_vel_y = (-0.5, 0.5)
-        self.commands.base_velocity.ranges.ang_vel_z = (-0.7, 0.7)
+        self.commands.base_velocity.ranges.lin_vel_x = (-1.0, 1.0)
+        self.commands.base_velocity.ranges.lin_vel_y = (-1.0, 1.0)
+        self.commands.base_velocity.ranges.ang_vel_z = (-1.0, 1.0)
 
         # terminations
         self.terminations.base_contact.params["sensor_cfg"].body_names = ["base",".*_scapula", ".*_thigh"]
