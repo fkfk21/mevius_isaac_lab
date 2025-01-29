@@ -37,7 +37,7 @@ T_MOTOR_AK70_10_CFG = DelayedPDActuatorCfg(
     stiffness={".*_collar_joint": 50.0, ".*_hip_joint": 50.0, ".*_knee_joint": 30.0},
     damping={".*_collar_joint": 2.0, ".*_hip_joint": 2.0, ".*_knee_joint": 0.5},
     min_delay=1,  # 0.005*1 = 0.005 [s]
-    max_delay=6,  # 0.005*6 = 0.030 [s]
+    max_delay=4,  # 0.005*4 = 0.020 [s]
 )
 """Configuration for mevius Delayed PDActuator model."""
 
