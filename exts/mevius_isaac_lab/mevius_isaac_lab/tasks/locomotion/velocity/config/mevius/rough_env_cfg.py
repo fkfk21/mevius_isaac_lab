@@ -1,4 +1,3 @@
-import math
 from omni.isaac.lab.managers.scene_entity_cfg import SceneEntityCfg
 from omni.isaac.lab.utils import configclass
 from omni.isaac.lab.managers import RewardTermCfg as RewTerm
@@ -10,7 +9,6 @@ from mevius_isaac_lab.tasks.locomotion.velocity.velocity_env_cfg import (
 )
 import omni.isaac.lab_tasks.manager_based.locomotion.velocity.config.spot.mdp as spot_mdp
 from omni.isaac.lab.utils.noise import AdditiveUniformNoiseCfg as Unoise
-import omni.isaac.lab.terrains as terrain_gen
 from mevius_isaac_lab.tasks.locomotion.velocity import mdp
 from mevius_isaac_lab.assets.mevius import MEVIUS_CFG, MEVIUS_JOINT_NAMES
 
@@ -21,14 +19,6 @@ class MeviusRewardsCfg(RewardsCfg):
         func=mdp.joint_vel_l2,
         weight=0.0,
     )
-    # feet_stumble = RewTerm(
-    #     func=mdp.feet_stumble,
-    #     weight=0.0,
-    #     params={
-    #         "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_foot"),
-    #         "threshold_ratio": 3
-    #     }
-    # )
     stand_still = RewTerm(
         func=mdp.stand_still,
         weight=0.00,
@@ -67,16 +57,6 @@ class MeviusRewardsCfg(RewardsCfg):
             "threshold": 1.0,
         },
     )
-    foot_clearance = RewTerm(
-        func=spot_mdp.foot_clearance_reward,
-        weight=0.0,
-        params={
-            "std": 0.05,
-            "tanh_mult": 2.0,
-            "target_height": 0.1,
-            "asset_cfg": SceneEntityCfg("robot", body_names=".*_foot"),
-        },
-    )
     air_time_variance = RewTerm(
         func=spot_mdp.air_time_variance_penalty,
         weight=-0.0,
@@ -107,7 +87,6 @@ class MeviusRewardsCfg(RewardsCfg):
         self.gait.weight                 = 0.3
         self.foot_rhythm.weight          = 0.2
         self.foot_slip.weight            = -0.3
-        self.foot_clearance.weight       = 0.0
         self.air_time_variance.weight    = -0.1
 
 
@@ -124,12 +103,6 @@ class MeviusSceneCfg(MySceneCfg):
         # terrain parameter settings
         self.terrain.max_init_terrain_level = 5
         self.terrain.terrain_generator.num_rows = 20
-        # self.terrain.terrain_generator.sub_terrains["boxes"].grid_height_range = (0.025, 0.08)
-        # self.terrain.terrain_generator.sub_terrains["random_rough"].noise_range = (0.01, 0.05)
-        # self.terrain.terrain_generator.sub_terrains["random_rough"].noise_step = 0.01
-        # self.terrain.terrain_generator.sub_terrains["pyramid_stairs"].step_height_range = (0.02, 0.10)
-        # self.terrain.terrain_generator.sub_terrains["pyramid_stairs_inv"].step_height_range = (0.02, 0.10)
-
         # self.terrain.terrain_generator.sub_terrains["boxes"].grid_height_range = (0.025, 0.10)
         # self.terrain.terrain_generator.sub_terrains["random_rough"].noise_range = (0.01, 0.09)
         # self.terrain.terrain_generator.sub_terrains["random_rough"].noise_step = 0.01
@@ -233,56 +206,9 @@ class MeviusRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         # terminations
         self.terminations.base_contact.params["sensor_cfg"].body_names = ["base",".*_scapula", ".*_thigh"]
 
-        # curriculum
-        # self.curriculum.terrain_levels = None
-
-
-@configclass
-class MeviusQuiteRoughEnvCfg(MeviusRoughEnvCfg):
-
-    def __post_init__(self):
-        super().__post_init__()
-
-        self.scene.terrain.terrain_generator.sub_terrains["boxes"].grid_height_range = (0.025, 0.10)
-        self.scene.terrain.terrain_generator.sub_terrains["random_rough"].noise_range = (0.01, 0.08)
-        self.scene.terrain.terrain_generator.sub_terrains["random_rough"].noise_step = 0.01
-        self.scene.terrain.terrain_generator.sub_terrains["pyramid_stairs"].step_height_range = (0.03, 0.15)
-        self.scene.terrain.terrain_generator.sub_terrains["pyramid_stairs_inv"].step_height_range = (0.03, 0.15)
-
-        self.rewards.track_ang_vel_z_exp.weight *= 0.5
-        self.rewards.dof_acc_l2.weight *= 0.8
-        self.rewards.dof_torques_l2.weight *= 0.8
-        self.rewards.action_rate_l2.weight *= 0.8
-        # self.rewards.dof_acc_l2.weight *= 1.0
-        # self.rewards.dof_torques_l2.weight *= 0.5
-        # self.rewards.action_rate_l2.weight *= 1.0
-
 
 @configclass
 class MeviusRoughEnvCfg_PLAY(MeviusRoughEnvCfg):
-    def __post_init__(self):
-        # post init of parent
-        super().__post_init__()
-
-        # make a smaller scene for play
-        self.scene.num_envs = 100
-        self.scene.env_spacing = 2.5
-        # spawn the robot randomly in the grid (instead of their terrain levels)
-        self.scene.terrain.max_init_terrain_level = None
-        # reduce the number of terrains to save memory
-        if self.scene.terrain.terrain_generator is not None:
-            self.scene.terrain.terrain_generator.num_rows = 5
-            self.scene.terrain.terrain_generator.num_cols = 5
-            self.scene.terrain.terrain_generator.curriculum = False
-
-        # disable randomization for play
-        self.observations.policy.enable_corruption = False
-        # remove random pushing event
-        self.events.base_external_force_torque = None
-        self.events.push_robot = None
-
-@configclass
-class MeviusQuiteRoughEnvCfg_PLAY(MeviusQuiteRoughEnvCfg):
     def __post_init__(self):
         # post init of parent
         super().__post_init__()
