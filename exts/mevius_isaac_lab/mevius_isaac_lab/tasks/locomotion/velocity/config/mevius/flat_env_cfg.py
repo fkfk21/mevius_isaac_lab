@@ -13,8 +13,10 @@ class MeviusFlatEnvCfg(MeviusRoughEnvCfg):
         self.commands.base_velocity.heading_command = False
 
         # event params
-        self.events.physics_material.params["static_friction_range"] = (0.7, 1.2)
-        self.events.physics_material.params["dynamic_friction_range"] = (0.6, 1.0)
+        self.events.physics_material.params["static_friction_range"] = (0.6, 1.2)
+        self.events.physics_material.params["dynamic_friction_range"] = (0.5, 1.0)
+
+        # self.commands.base_velocity.resampling_time_range = (0.5, 3.0)
 
         # reward scales
         # self.rewards.base_height_l2.weight = -0.01

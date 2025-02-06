@@ -29,15 +29,10 @@ T_MOTOR_AK70_10_CFG = DelayedPDActuatorCfg(
     effort_limit=24.8,
     # velocity_limit=15.5,  # [rad/s] = 148 [rpm]
     velocity_limit=20.9,  # [rad/s] = 200 [rpm]
-    # action scale: 0.5
-    # stiffness={".*_collar_joint": 30.0, ".*_hip_joint": 30.0, ".*_knee_joint": 25.0},
-    # damping={".*_collar_joint": 0.8, ".*_hip_joint": 0.8, ".*_knee_joint": 0.5},
-
-    # action scale: 0.5
     stiffness={".*_collar_joint": 50.0, ".*_hip_joint": 50.0, ".*_knee_joint": 30.0},
     damping={".*_collar_joint": 2.0, ".*_hip_joint": 2.0, ".*_knee_joint": 0.5},
     min_delay=1,  # 0.005*1 = 0.005 [s]
-    max_delay=6,  # 0.005*6 = 0.030 [s]
+    max_delay=4,  # 0.005*4 = 0.020 [s]
 )
 """Configuration for mevius Delayed PDActuator model."""
 
@@ -68,7 +63,9 @@ MEVIUS_CFG = ArticulationCfg(
             max_depenetration_velocity=1.0,
         ),
         articulation_props=sim_utils.ArticulationRootPropertiesCfg(
-            enabled_self_collisions=False, solver_position_iteration_count=4, solver_velocity_iteration_count=0
+            enabled_self_collisions=True,
+            solver_position_iteration_count=4,
+            solver_velocity_iteration_count=0
         ),
     ),
     init_state=ArticulationCfg.InitialStateCfg(
