@@ -79,7 +79,7 @@ MEVIUS_CFG = ArticulationCfg(
         },
         joint_vel={".*": 0.0},
     ),
-    soft_joint_pos_limit_factor=0.9,
+    soft_joint_pos_limit_factor=0.75,
     actuators={"legs": T_MOTOR_AK70_10_CFG},
 )
 """Configuration of mevius robot using simple actuator config.

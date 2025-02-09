@@ -75,13 +75,13 @@ class MeviusRewardsCfg(RewardsCfg):
         self.track_ang_vel_z_exp.weight  = 0.9
         self.lin_vel_z_l2.weight         = -2.0
         self.ang_vel_xy_l2.weight        = -0.1
-        self.dof_torques_l2.weight       = -0.8e-5
-        self.dof_acc_l2.weight           = -0.8e-7
-        self.action_rate_l2.weight       = -0.04
+        self.dof_torques_l2.weight       = -1.0e-5
+        self.dof_acc_l2.weight           = -2.0e-7
+        self.action_rate_l2.weight       = -0.07
         self.feet_air_time.weight        = 0.05
         self.undesired_contacts.weight   = -1.0
         self.flat_orientation_l2.weight  = -1.0
-        self.dof_pos_limits.weight       = -1.0
+        self.dof_pos_limits.weight       = -5.0
         self.dof_vel_l2.weight           = -1.0e-7
         self.stand_still.weight          = -2.0
         self.gait.weight                 = 0.3
@@ -112,8 +112,8 @@ class MeviusSceneCfg(MySceneCfg):
         self.terrain.terrain_generator.sub_terrains["boxes"].grid_height_range = (0.025, 0.10)
         self.terrain.terrain_generator.sub_terrains["random_rough"].noise_range = (0.01, 0.09)
         self.terrain.terrain_generator.sub_terrains["random_rough"].noise_step = 0.01
-        self.terrain.terrain_generator.sub_terrains["pyramid_stairs"].step_height_range = (0.02, 0.17)
-        self.terrain.terrain_generator.sub_terrains["pyramid_stairs_inv"].step_height_range = (0.02, 0.17)
+        self.terrain.terrain_generator.sub_terrains["pyramid_stairs"].step_height_range = (0.02, 0.20)
+        self.terrain.terrain_generator.sub_terrains["pyramid_stairs_inv"].step_height_range = (0.02, 0.20)
 
 @configclass
 class MeviusObservationsCfg(ObservationsCfg):
