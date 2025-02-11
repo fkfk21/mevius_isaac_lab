@@ -24,6 +24,9 @@ class MeviusRewardsCfg(RewardsCfg):
         weight=0.00,
         params={
             "command_name": "base_velocity",
+            "cmd_lin_vel_threshold": 0.1,
+            "cmd_ang_vel_threshold": 0.1,
+            "body_lin_vel_threshold": 0.2,
         }
     )
     gait = RewTerm(
@@ -32,7 +35,7 @@ class MeviusRewardsCfg(RewardsCfg):
         params={
             "std": 0.1,
             "max_err": 0.2,
-            "velocity_threshold": 0.3,
+            "velocity_threshold": 0.1,
             "synced_feet_pair_names": (("FL_foot", "BR_foot"), ("FR_foot", "BL_foot")), 
             "asset_cfg": SceneEntityCfg("robot"),
             "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_foot"),
@@ -45,7 +48,7 @@ class MeviusRewardsCfg(RewardsCfg):
             "asset_cfg": SceneEntityCfg("robot"),
             "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_foot"),
             "mode_time": 0.4,
-            "velocity_threshold": 0.3,
+            "velocity_threshold": 0.1,
         }
     )
     foot_slip = RewTerm(
@@ -77,12 +80,12 @@ class MeviusRewardsCfg(RewardsCfg):
         self.ang_vel_xy_l2.weight        = -0.1
         self.dof_torques_l2.weight       = -1.0e-5
         self.dof_acc_l2.weight           = -2.0e-7
-        self.action_rate_l2.weight       = -0.07
+        self.action_rate_l2.weight       = -0.05
         self.feet_air_time.weight        = 0.05
         self.undesired_contacts.weight   = -1.0
         self.flat_orientation_l2.weight  = -1.0
         self.dof_pos_limits.weight       = -5.0
-        self.dof_vel_l2.weight           = -1.0e-7
+        self.dof_vel_l2.weight           = -1.0e-6
         self.stand_still.weight          = -2.0
         self.gait.weight                 = 0.3
         self.foot_rhythm.weight          = 0.2
@@ -112,8 +115,8 @@ class MeviusSceneCfg(MySceneCfg):
         self.terrain.terrain_generator.sub_terrains["boxes"].grid_height_range = (0.025, 0.10)
         self.terrain.terrain_generator.sub_terrains["random_rough"].noise_range = (0.01, 0.09)
         self.terrain.terrain_generator.sub_terrains["random_rough"].noise_step = 0.01
-        self.terrain.terrain_generator.sub_terrains["pyramid_stairs"].step_height_range = (0.02, 0.20)
-        self.terrain.terrain_generator.sub_terrains["pyramid_stairs_inv"].step_height_range = (0.02, 0.20)
+        self.terrain.terrain_generator.sub_terrains["pyramid_stairs"].step_height_range = (0.02, 0.18)
+        self.terrain.terrain_generator.sub_terrains["pyramid_stairs_inv"].step_height_range = (0.02, 0.18)
 
 @configclass
 class MeviusObservationsCfg(ObservationsCfg):
@@ -136,9 +139,9 @@ class MeviusObservationsCfg(ObservationsCfg):
         }
 
         # add noise to the observations
-        self.policy.base_lin_vel.noise      = Unoise(n_min=-0.2, n_max=0.2)
-        self.policy.base_ang_vel.noise      = Unoise(n_min=-0.3, n_max=0.3)
-        self.policy.joint_pos.noise         = Unoise(n_min=-0.05, n_max=0.05)
+        self.policy.base_lin_vel.noise      = Unoise(n_min=-0.15, n_max=0.15)
+        self.policy.base_ang_vel.noise      = Unoise(n_min=-0.2, n_max=0.2)
+        self.policy.joint_pos.noise         = Unoise(n_min=-0.01, n_max=0.01)
         self.policy.joint_vel.noise         = Unoise(n_min=-1.0, n_max=1.0)
         self.policy.projected_gravity.noise = Unoise(n_min=-0.1, n_max=0.1)
 
