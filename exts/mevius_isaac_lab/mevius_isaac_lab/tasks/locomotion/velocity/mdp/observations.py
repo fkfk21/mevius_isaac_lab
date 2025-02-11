@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 def foot_contact_forces(env: ManagerBasedEnv, sensor_cfg: SceneEntityCfg) -> torch.Tensor:
     """Return the contact forces of the feet """
     contact_sensor: ContactSensor = env.scene.sensors[sensor_cfg.name]
-    return contact_sensor.data.net_forces_w
+    return contact_sensor.data.net_forces_w[:, sensor_cfg.body_ids].flatten(start_dim=1)
 
 
 def foot_friction_coeffs(env: ManagerBasedEnv, asset_cfg: SceneEntityCfg) -> torch.Tensor:
