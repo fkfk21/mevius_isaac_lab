@@ -95,7 +95,6 @@ class MeviusRewardsCfg(RewardsCfg):
 
 @configclass
 class MeviusSceneCfg(MySceneCfg):
-    height_scanner = None
 
     def __post_init__(self):
         super().__post_init__()
@@ -106,58 +105,76 @@ class MeviusSceneCfg(MySceneCfg):
         # terrain parameter settings
         self.terrain.max_init_terrain_level = 5
         self.terrain.terrain_generator.num_rows = 20
-        # self.terrain.terrain_generator.sub_terrains["boxes"].grid_height_range = (0.025, 0.10)
-        # self.terrain.terrain_generator.sub_terrains["random_rough"].noise_range = (0.01, 0.09)
-        # self.terrain.terrain_generator.sub_terrains["random_rough"].noise_step = 0.01
-        # self.terrain.terrain_generator.sub_terrains["pyramid_stairs"].step_height_range = (0.02, 0.20)
-        # self.terrain.terrain_generator.sub_terrains["pyramid_stairs_inv"].step_height_range = (0.02, 0.20)
-
         self.terrain.terrain_generator.sub_terrains["boxes"].grid_height_range = (0.025, 0.10)
         self.terrain.terrain_generator.sub_terrains["random_rough"].noise_range = (0.01, 0.09)
         self.terrain.terrain_generator.sub_terrains["random_rough"].noise_step = 0.01
-        self.terrain.terrain_generator.sub_terrains["pyramid_stairs"].step_height_range = (0.02, 0.18)
-        self.terrain.terrain_generator.sub_terrains["pyramid_stairs_inv"].step_height_range = (0.02, 0.18)
+        self.terrain.terrain_generator.sub_terrains["pyramid_stairs"].step_height_range = (0.02, 0.20)
+        self.terrain.terrain_generator.sub_terrains["pyramid_stairs_inv"].step_height_range = (0.02, 0.20)
 
 @configclass
 class MeviusObservationsCfg(ObservationsCfg):
 
     @configclass
-    class PolicyCfg(ObservationsCfg.PolicyCfg):
+    class CommonCfg(ObservationsCfg.PolicyCfg):
+
+        def __post_init__(self):
+            super().__post_init__()
+
+            # set the parameters to match the hardware
+            self.joint_pos.params = {
+                "asset_cfg": SceneEntityCfg("robot", joint_names=MEVIUS_JOINT_NAMES, preserve_order=True)
+            }
+            self.joint_vel.params = {
+                "asset_cfg": SceneEntityCfg("robot", joint_names=MEVIUS_JOINT_NAMES, preserve_order=True)
+            }
+
+            # scale observations
+            self.joint_pos.scale    = 1.0
+            self.joint_vel.scale    = 0.05
+            self.base_lin_vel.scale = 2.0
+            self.base_ang_vel.scale = 0.25
+
+            # clip observations
+            self.base_lin_vel.clip      = (-100.0, 100.0)
+            self.base_ang_vel.clip      = (-100.0, 100.0)
+            self.velocity_commands.clip = (-100.0, 100.0)
+            self.joint_pos.clip         = (-100.0, 100.0)
+            self.joint_vel.clip         = (-100.0, 100.0)
+            self.actions.clip           = ( -10.0,  10.0)
+
+    @configclass
+    class PolicyCfg(CommonCfg):
         height_scan = None
 
+        def __post_init__(self):
+            super().__post_init__()
+
+            # add noise to the observations
+            self.enable_corruption = True
+            self.base_lin_vel.noise      = Unoise(n_min=-0.15, n_max=0.15)
+            self.base_ang_vel.noise      = Unoise(n_min=-0.2, n_max=0.2)
+            self.joint_pos.noise         = Unoise(n_min=-0.01, n_max=0.01)
+            self.joint_vel.noise         = Unoise(n_min=-1.0, n_max=1.0)
+            self.projected_gravity.noise = Unoise(n_min=-0.1, n_max=0.1)
+
+    @configclass
+    class CriticCfg(CommonCfg):
+        ## add more privileged observations
+        
+        def __post_init__(self):
+            super().__post_init__()
+
+            # disable noise for critic observations
+            self.enable_corruption = False
+
+            # change offset for base height scan
+            self.height_scan.params["offset"] = 0.3
+
     policy: PolicyCfg = PolicyCfg()
+    critic: CriticCfg = CriticCfg()
 
     def __post_init__(self):
-        super().__post_init__()
-
-        # set the parameters to match the hardware
-        self.policy.joint_pos.params = {
-            "asset_cfg": SceneEntityCfg("robot", joint_names=MEVIUS_JOINT_NAMES, preserve_order=True)
-        }
-        self.policy.joint_vel.params = {
-            "asset_cfg": SceneEntityCfg("robot", joint_names=MEVIUS_JOINT_NAMES, preserve_order=True)
-        }
-
-        # add noise to the observations
-        self.policy.base_lin_vel.noise      = Unoise(n_min=-0.15, n_max=0.15)
-        self.policy.base_ang_vel.noise      = Unoise(n_min=-0.2, n_max=0.2)
-        self.policy.joint_pos.noise         = Unoise(n_min=-0.01, n_max=0.01)
-        self.policy.joint_vel.noise         = Unoise(n_min=-1.0, n_max=1.0)
-        self.policy.projected_gravity.noise = Unoise(n_min=-0.1, n_max=0.1)
-
-        # scale observations
-        self.policy.joint_pos.scale    = 1.0
-        self.policy.joint_vel.scale    = 0.05
-        self.policy.base_lin_vel.scale = 2.0
-        self.policy.base_ang_vel.scale = 0.25
-
-        # clip observations
-        self.policy.base_lin_vel.clip      = (-100.0, 100.0)
-        self.policy.base_ang_vel.clip      = (-100.0, 100.0)
-        self.policy.velocity_commands.clip = (-100.0, 100.0)
-        self.policy.joint_pos.clip         = (-100.0, 100.0)
-        self.policy.joint_vel.clip         = (-100.0, 100.0)
-        self.policy.actions.clip           = ( -10.0,  10.0)
+        return super().__post_init__()
 
 
 @configclass
