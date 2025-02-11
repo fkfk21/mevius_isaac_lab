@@ -1,6 +1,7 @@
 from omni.isaac.lab.managers.scene_entity_cfg import SceneEntityCfg
 from omni.isaac.lab.utils import configclass
 from omni.isaac.lab.managers import RewardTermCfg as RewTerm
+from omni.isaac.lab.managers import ObservationTermCfg as ObsTerm
 from mevius_isaac_lab.tasks.locomotion.velocity.velocity_env_cfg import (
     LocomotionVelocityRoughEnvCfg,
     MySceneCfg,
@@ -111,6 +112,7 @@ class MeviusSceneCfg(MySceneCfg):
         self.terrain.terrain_generator.sub_terrains["pyramid_stairs"].step_height_range = (0.02, 0.20)
         self.terrain.terrain_generator.sub_terrains["pyramid_stairs_inv"].step_height_range = (0.02, 0.20)
 
+
 @configclass
 class MeviusObservationsCfg(ObservationsCfg):
 
@@ -160,6 +162,16 @@ class MeviusObservationsCfg(ObservationsCfg):
     @configclass
     class CriticCfg(CommonCfg):
         ## add more privileged observations
+        foot_contact_forces = ObsTerm(
+            func=mdp.foot_contact_forces,
+            scale=0.01,
+            params={"sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_foot")},
+        )
+        foot_friction_coeffs = ObsTerm(
+            func=mdp.foot_friction_coeffs,
+            scale=0.2,
+            params={"asset_cfg": SceneEntityCfg("robot", body_names=".*_foot")},
+        )
         
         def __post_init__(self):
             super().__post_init__()
