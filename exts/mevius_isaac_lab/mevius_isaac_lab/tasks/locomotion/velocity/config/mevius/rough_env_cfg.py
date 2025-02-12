@@ -16,17 +16,17 @@ from mevius_isaac_lab.assets.mevius import MEVIUS_CFG, MEVIUS_JOINT_NAMES
 
 @configclass
 class MeviusRewardsCfg(RewardsCfg):
-    dof_vel_l2 = RewTerm(
-        func=mdp.joint_vel_l2,
-        weight=0.0,
-    )
+    # dof_vel_l2 = RewTerm(
+    #     func=mdp.joint_vel_l2,
+    #     weight=0.0,
+    # )
     stand_still = RewTerm(
         func=mdp.stand_still,
         weight=0.00,
         params={
             "command_name": "base_velocity",
-            "cmd_lin_vel_threshold": 0.1,
-            "cmd_ang_vel_threshold": 0.1,
+            "cmd_lin_vel_threshold": 0.15,
+            "cmd_ang_vel_threshold": 0.15,
             "body_lin_vel_threshold": 0.2,
         }
     )
@@ -78,7 +78,7 @@ class MeviusRewardsCfg(RewardsCfg):
         self.track_lin_vel_xy_exp.weight = 1.5
         self.track_ang_vel_z_exp.weight  = 0.9
         self.lin_vel_z_l2.weight         = -2.0
-        self.ang_vel_xy_l2.weight        = -0.1
+        self.ang_vel_xy_l2.weight        = -0.05
         self.dof_torques_l2.weight       = -1.0e-5
         self.dof_acc_l2.weight           = -2.0e-7
         self.action_rate_l2.weight       = -0.05
@@ -86,8 +86,8 @@ class MeviusRewardsCfg(RewardsCfg):
         self.undesired_contacts.weight   = -1.0
         self.flat_orientation_l2.weight  = -1.0
         self.dof_pos_limits.weight       = -5.0
-        self.dof_vel_l2.weight           = -1.0e-6
-        self.stand_still.weight          = -2.0
+        # self.dof_vel_l2.weight           = -1.0e-6
+        self.stand_still.weight          = -3.0
         self.gait.weight                 = 0.3
         self.foot_rhythm.weight          = 0.2
         self.foot_slip.weight            = -0.3
@@ -102,6 +102,9 @@ class MeviusSceneCfg(MySceneCfg):
 
         # set the robot as mevius
         self.robot = MEVIUS_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
+        self.height_scanner.pattern_cfg.resolution = 0.1
+        self.height_scanner.pattern_cfg.size = [1.2, 0.8]
+
 
         # terrain parameter settings
         self.terrain.max_init_terrain_level = 5
@@ -167,10 +170,15 @@ class MeviusObservationsCfg(ObservationsCfg):
             scale=0.01,
             params={"sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_foot")},
         )
+        foot_contact_force_dirs = ObsTerm(
+            func=mdp.foot_contact_force_dirs,
+            scale=1.0,
+            params={"sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_foot")},
+        )
         # foot_friction_coeffs = ObsTerm(
         #     func=mdp.foot_friction_coeffs,
         #     scale=0.2,
-        #     params={"asset_cfg": SceneEntityCfg("robot", body_names=".*")},
+        #     params={"asset_cfg": SceneEntityCfg("robot", body_names=".*_foot")},
         # )
         
         def __post_init__(self):
@@ -207,8 +215,6 @@ class MeviusRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         # events
         self.events.physics_material.params["static_friction_range"] = (0.6, 1.2)
         self.events.physics_material.params["dynamic_friction_range"] = (0.5, 1.0)
-        self.events.physics_material.params["make_consistent"] = True
-        self.events.physics_material.params["asset_cfg"].body_names = ".*_foot"
         self.events.add_base_mass.params["mass_distribution_params"] = (-1.0, 3.0)
         self.events.add_base_mass.params["asset_cfg"].body_names = "base"
         self.events.base_external_force_torque.params["asset_cfg"].body_names = "base"

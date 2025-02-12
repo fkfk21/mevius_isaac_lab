@@ -11,11 +11,24 @@ if TYPE_CHECKING:
     from omni.isaac.lab.envs import ManagerBasedEnv
 
 
+def foot_contact_force_dirs(env: ManagerBasedEnv, sensor_cfg: SceneEntityCfg) -> torch.Tensor:
+    """Return the contact forces of the feet """
+    contact_sensor: ContactSensor = env.scene.sensors[sensor_cfg.name]
+    forces = contact_sensor.data.net_forces_w[:, sensor_cfg.body_ids]
+    force_magnitude = torch.norm(forces, dim=2)
+    eps = 1e-10
+    force_dir = forces / (force_magnitude.unsqueeze(2) + eps)
+    zero_dir = torch.tensor([0.0, 0.0, 0.0], dtype=forces.dtype, device=forces.device)
+    # if the force is zero, the direction is 0,0,0
+    force_dir[force_magnitude < eps] = zero_dir
+    return force_dir.flatten(1)
+
 
 def foot_contact_forces(env: ManagerBasedEnv, sensor_cfg: SceneEntityCfg) -> torch.Tensor:
     """Return the contact forces of the feet """
     contact_sensor: ContactSensor = env.scene.sensors[sensor_cfg.name]
-    return contact_sensor.data.net_forces_w[:, sensor_cfg.body_ids].flatten(start_dim=1)
+    force_magnitude = torch.norm(contact_sensor.data.net_forces_w[:, sensor_cfg.body_ids], dim=2)
+    return force_magnitude
 
 
 def foot_friction_coeffs(env: ManagerBasedEnv, asset_cfg: SceneEntityCfg) -> torch.Tensor:
