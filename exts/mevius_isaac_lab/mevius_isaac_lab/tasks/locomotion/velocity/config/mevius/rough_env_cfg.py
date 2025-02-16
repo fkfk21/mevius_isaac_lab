@@ -16,10 +16,6 @@ from mevius_isaac_lab.assets.mevius import MEVIUS_CFG, MEVIUS_JOINT_NAMES
 
 @configclass
 class MeviusRewardsCfg(RewardsCfg):
-    # dof_vel_l2 = RewTerm(
-    #     func=mdp.joint_vel_l2,
-    #     weight=0.0,
-    # )
     stand_still = RewTerm(
         func=mdp.stand_still,
         weight=0.00,
@@ -27,7 +23,6 @@ class MeviusRewardsCfg(RewardsCfg):
             "command_name": "base_velocity",
             "cmd_lin_vel_threshold": 0.15,
             "cmd_ang_vel_threshold": 0.15,
-            "body_lin_vel_threshold": 0.2,
         }
     )
     gait = RewTerm(
@@ -36,7 +31,7 @@ class MeviusRewardsCfg(RewardsCfg):
         params={
             "std": 0.1,
             "max_err": 0.2,
-            "velocity_threshold": 0.1,
+            "velocity_threshold": 0.3,
             "synced_feet_pair_names": (("FL_foot", "BR_foot"), ("FR_foot", "BL_foot")), 
             "asset_cfg": SceneEntityCfg("robot"),
             "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_foot"),
@@ -49,7 +44,7 @@ class MeviusRewardsCfg(RewardsCfg):
             "asset_cfg": SceneEntityCfg("robot"),
             "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_foot"),
             "mode_time": 0.4,
-            "velocity_threshold": 0.1,
+            "velocity_threshold": 0.3,
         }
     )
     foot_slip = RewTerm(
@@ -80,14 +75,13 @@ class MeviusRewardsCfg(RewardsCfg):
         self.lin_vel_z_l2.weight         = -2.0
         self.ang_vel_xy_l2.weight        = -0.05
         self.dof_torques_l2.weight       = -1.0e-5
-        self.dof_acc_l2.weight           = -2.0e-7
-        self.action_rate_l2.weight       = -0.05
-        self.feet_air_time.weight        = 0.05
+        self.dof_acc_l2.weight           = -2.5e-7
+        self.action_rate_l2.weight       = -0.1
+        self.feet_air_time.weight        = 0.125
         self.undesired_contacts.weight   = -1.0
         self.flat_orientation_l2.weight  = -1.0
         self.dof_pos_limits.weight       = -5.0
-        # self.dof_vel_l2.weight           = -1.0e-6
-        self.stand_still.weight          = -3.0
+        self.stand_still.weight          = -2.0
         self.gait.weight                 = 0.3
         self.foot_rhythm.weight          = 0.2
         self.foot_slip.weight            = -0.3
@@ -190,8 +184,8 @@ class MeviusObservationsCfg(ObservationsCfg):
             # change offset for base height scan
             self.height_scan.params["offset"] = 0.3
 
-    policy: PolicyCfg = PolicyCfg()
-    critic: CriticCfg = CriticCfg()
+    policy = PolicyCfg()
+    critic = CriticCfg()
 
     def __post_init__(self):
         return super().__post_init__()
@@ -238,9 +232,8 @@ class MeviusRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         }
 
         # commands
-        # self.commands.base_velocity.heading_command = False
         self.commands.base_velocity.heading_command = True
-        self.commands.base_velocity.heading_control_stiffness = 2.0
+        self.commands.base_velocity.heading_control_stiffness = 3.0
         self.commands.base_velocity.ranges.lin_vel_x = (-0.9, 1.2)
         self.commands.base_velocity.ranges.lin_vel_y = (-0.8, 0.8)
         self.commands.base_velocity.ranges.ang_vel_z = (-1.0, 1.0)

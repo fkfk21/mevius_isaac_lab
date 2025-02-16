@@ -6,8 +6,6 @@ from typing import TYPE_CHECKING
 
 from omni.isaac.lab.assets.articulation.articulation import Articulation
 from omni.isaac.lab.managers import SceneEntityCfg
-from omni.isaac.lab.managers.manager_base import ManagerTermBase
-from omni.isaac.lab.managers.manager_term_cfg import ObservationTermCfg
 from omni.isaac.lab.sensors import ContactSensor
 
 if TYPE_CHECKING:
