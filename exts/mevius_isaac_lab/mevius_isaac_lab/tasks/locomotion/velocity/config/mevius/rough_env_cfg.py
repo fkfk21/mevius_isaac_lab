@@ -175,11 +175,11 @@ class MeviusObservationsCfg(ObservationsCfg):
             scale=1.0,
             params={"sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_foot")},
         )
-        # foot_friction_coeffs = ObsTerm(
-        #     func=mdp.foot_friction_coeffs,
-        #     scale=0.2,
-        #     params={"asset_cfg": SceneEntityCfg("robot", body_names=".*_foot")},
-        # )
+        foot_friction_coeffs = ObsTerm(
+            func=mdp.foot_friction_coeffs,
+            scale=0.2,
+            params={"asset_cfg": SceneEntityCfg("robot", body_names=".*_foot")},
+        )
         
         def __post_init__(self):
             super().__post_init__()
@@ -215,6 +215,8 @@ class MeviusRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         # events
         self.events.physics_material.params["static_friction_range"] = (0.6, 1.2)
         self.events.physics_material.params["dynamic_friction_range"] = (0.5, 1.0)
+        self.events.physics_material.params["num_buckets"] = 128
+        self.events.physics_material.params["make_consistent"] = True
         self.events.add_base_mass.params["mass_distribution_params"] = (-1.0, 3.0)
         self.events.add_base_mass.params["asset_cfg"].body_names = "base"
         self.events.base_external_force_torque.params["asset_cfg"].body_names = "base"
