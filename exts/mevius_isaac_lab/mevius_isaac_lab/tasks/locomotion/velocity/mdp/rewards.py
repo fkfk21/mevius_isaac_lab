@@ -91,13 +91,10 @@ def stand_still(
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     cmd_lin_vel_threshold: float = 0.1,
     cmd_ang_vel_threshold: float = 0.1,
-    body_lin_vel_threshold: float = 0.1,
 ) -> torch.Tensor:
     # Penalize motion at nearly zero velocity.
     asset: Articulation = env.scene[asset_cfg.name]
     cmd_lin_vel = torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1)
     cmd_ang_vel = torch.abs(env.command_manager.get_command(command_name)[:, 2])
-    body_lin_vel = torch.norm(asset.data.root_com_lin_vel_b[:, :2], dim=1)
     return torch.sum(torch.abs(asset.data.joint_pos - asset.data.default_joint_pos), dim=1) * \
-                ((cmd_lin_vel < cmd_lin_vel_threshold) & (cmd_ang_vel < cmd_ang_vel_threshold)
-                  & (body_lin_vel < body_lin_vel_threshold))
+                ((cmd_lin_vel < cmd_lin_vel_threshold) & (cmd_ang_vel < cmd_ang_vel_threshold))

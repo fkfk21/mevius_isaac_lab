@@ -71,8 +71,8 @@ MEVIUS_CFG = ArticulationCfg(
     init_state=ArticulationCfg.InitialStateCfg(
         pos=(0.0, 0.0, 0.35),  # x,y,z [m]
         joint_pos={  # = target angles [rad] when action = 0.0
-            '[F,B]R_collar_joint': -0.1,
-            '[F,B]L_collar_joint': 0.1,
+            '[F,B]R_collar_joint': -0.05,
+            '[F,B]L_collar_joint': 0.05,
             'F[R,L]_hip_joint': 0.8,
             'B[R,L]_hip_joint': 1.0,
             '.*knee_joint': -1.4,
