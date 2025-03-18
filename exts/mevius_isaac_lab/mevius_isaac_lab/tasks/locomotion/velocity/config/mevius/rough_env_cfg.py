@@ -108,6 +108,22 @@ class MeviusSceneCfg(MySceneCfg):
         self.terrain.terrain_generator.sub_terrains["random_rough"].noise_step = 0.01
         self.terrain.terrain_generator.sub_terrains["pyramid_stairs"].step_height_range = (0.02, 0.20)
         self.terrain.terrain_generator.sub_terrains["pyramid_stairs_inv"].step_height_range = (0.02, 0.20)
+        self.terrain.terrain_generator.sub_terrains["steps"] = mdp.terrains.MeshConsecutiveStepsTerrainCfg(
+            step_height_range=(0.02, 0.17),
+            step_width_range=(0.35, 0.45),
+            step_margin_range=(0.35, 0.45),
+            border_width=0.5,
+            platform_width=1.0,
+        )
+
+        # set the terrain proportions
+        self.terrain.terrain_generator.sub_terrains["pyramid_stairs"].proportion       = 0.1
+        self.terrain.terrain_generator.sub_terrains["pyramid_stairs_inv"].proportion   = 0.1
+        self.terrain.terrain_generator.sub_terrains["random_rough"].proportion         = 0.2
+        self.terrain.terrain_generator.sub_terrains["boxes"].proportion                = 0.2
+        self.terrain.terrain_generator.sub_terrains["hf_pyramid_slope"].proportion     = 0.05
+        self.terrain.terrain_generator.sub_terrains["hf_pyramid_slope_inv"].proportion = 0.05
+        self.terrain.terrain_generator.sub_terrains["steps"].proportion                = 0.3
 
 
 @configclass
@@ -169,11 +185,11 @@ class MeviusObservationsCfg(ObservationsCfg):
             scale=1.0,
             params={"sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_foot")},
         )
-        foot_friction_coeffs = ObsTerm(
-            func=mdp.foot_friction_coeffs,
-            scale=0.2,
-            params={"asset_cfg": SceneEntityCfg("robot", body_names=".*_foot")},
-        )
+        # foot_friction_coeffs = ObsTerm(
+        #     func=mdp.foot_friction_coeffs,
+        #     scale=0.2,
+        #     params={"asset_cfg": SceneEntityCfg("robot", body_names=".*_foot")},
+        # )
         
         def __post_init__(self):
             super().__post_init__()
