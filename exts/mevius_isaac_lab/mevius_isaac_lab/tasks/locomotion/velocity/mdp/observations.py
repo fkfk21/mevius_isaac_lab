@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 from omni.isaac.lab.assets.articulation.articulation import Articulation
 from omni.isaac.lab.managers import SceneEntityCfg
-from omni.isaac.lab.sensors import ContactSensor
+from omni.isaac.lab.sensors import ContactSensor, Imu
 
 if TYPE_CHECKING:
     from omni.isaac.lab.envs import ManagerBasedEnv
@@ -43,3 +43,18 @@ def foot_friction_coeffs(env: ManagerBasedEnv, asset_cfg: SceneEntityCfg) -> tor
     env_ids = torch.arange(env.scene.num_envs, device="cpu")
     materials = asset.root_physx_view.get_material_properties()
     return materials[env_ids][:, body_ids, 0:2].flatten(1).to(env.device)
+
+def imu_lin_vel(env: ManagerBasedEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("imu")) -> torch.Tensor:
+    """Imu sensor linear velocity w.r.t. environment origin expressed in the sensor frame.
+
+    Args:
+        env: The environment.
+        asset_cfg: The SceneEntity associated with an IMU sensor. Defaults to SceneEntityCfg("imu").
+
+    Returns:
+        The linear velocity (m/s) in the sensor frame. Shape is (num_envs, 3).
+    """
+    # extract the used quantities (to enable type-hinting)
+    asset: Imu = env.scene[asset_cfg.name]
+    # return the linear velocity
+    return asset.data.lin_vel_b

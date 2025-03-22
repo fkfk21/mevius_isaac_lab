@@ -1,5 +1,6 @@
 from omni.isaac.lab.managers.scene_entity_cfg import SceneEntityCfg
 from omni.isaac.lab.utils import configclass
+from omni.isaac.lab.sensors import ImuCfg
 from omni.isaac.lab.managers import RewardTermCfg as RewTerm
 from omni.isaac.lab.managers import ObservationTermCfg as ObsTerm
 from mevius_isaac_lab.tasks.locomotion.velocity.velocity_env_cfg import (
@@ -90,6 +91,11 @@ class MeviusRewardsCfg(RewardsCfg):
 
 @configclass
 class MeviusSceneCfg(MySceneCfg):
+    realsense = ImuCfg(
+        prim_path="{ENV_REGEX_NS}/Robot/base",
+        offset=ImuCfg.OffsetCfg(pos=(0.205, 0.009, 0.165), rot=(1.0, 0.0, 0.0, 0.0)),
+        update_period=0.02,
+    )
 
     def __post_init__(self):
         super().__post_init__()
@@ -113,7 +119,7 @@ class MeviusSceneCfg(MySceneCfg):
             step_width_range=(0.35, 0.45),
             step_margin_range=(0.35, 0.45),
             border_width=0.5,
-            platform_width=1.0,
+            platform_width=2.0,
         )
 
         # set the terrain proportions
@@ -141,6 +147,12 @@ class MeviusObservationsCfg(ObservationsCfg):
             }
             self.joint_vel.params = {
                 "asset_cfg": SceneEntityCfg("robot", joint_names=MEVIUS_JOINT_NAMES, preserve_order=True)
+            }
+
+            # change robot base velocity sensor
+            self.base_lin_vel.func = mdp.imu_lin_vel
+            self.base_lin_vel.params = {
+                "asset_cfg": SceneEntityCfg("realsense"),
             }
 
             # scale observations
