@@ -15,7 +15,7 @@ from omni.isaac.lab_tasks.utils.wrappers.rsl_rl import (
 @configclass
 class MeviusRoughPPORunnerCfg(RslRlOnPolicyRunnerCfg):
     num_steps_per_env = 24
-    max_iterations = 1500
+    max_iterations = 10000
     save_interval = 200
     experiment_name = "mevius_rough"
     empirical_normalization = False
@@ -46,5 +46,5 @@ class MeviusFlatPPORunnerCfg(MeviusRoughPPORunnerCfg):
     def __post_init__(self):
         super().__post_init__()  # type: ignore
 
-        self.max_iterations = 300
+        self.max_iterations = 1500
         self.experiment_name = "mevius_flat"
