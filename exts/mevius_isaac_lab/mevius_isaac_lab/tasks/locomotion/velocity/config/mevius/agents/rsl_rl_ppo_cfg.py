@@ -48,3 +48,13 @@ class MeviusFlatPPORunnerCfg(MeviusRoughPPORunnerCfg):
 
         self.max_iterations = 1500
         self.experiment_name = "mevius_flat"
+
+
+
+@configclass
+class MeviusCoREPPORunnerCfg(MeviusRoughPPORunnerCfg):
+    def __post_init__(self):
+        super().__post_init__()  # type: ignore
+
+        self.save_interval = 200
+        self.experiment_name = "mevius_core"

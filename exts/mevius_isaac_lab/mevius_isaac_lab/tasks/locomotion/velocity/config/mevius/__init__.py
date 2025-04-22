@@ -5,7 +5,7 @@
 
 import gymnasium as gym
 
-from . import agents, flat_env_cfg, rough_env_cfg
+from . import agents, flat_env_cfg, rough_env_cfg, core_env_cfg
 
 ##
 # Register Gym environments.
@@ -48,5 +48,35 @@ gym.register(
     kwargs={
         "env_cfg_entry_point": rough_env_cfg.MeviusRoughEnvCfg_PLAY,
         "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:MeviusRoughPPORunnerCfg",
+    },
+)
+
+gym.register(
+    id="Isaac-Velocity-CoRE-Mevius-v0",
+    entry_point="omni.isaac.lab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": core_env_cfg.MeviusCoREEnvCfg,
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:MeviusCoREPPORunnerCfg",
+    },
+)
+
+gym.register(
+    id="Isaac-Velocity-CoRE-Mevius-Play-v0",
+    entry_point="omni.isaac.lab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": core_env_cfg.MeviusCoREEnvCfg_PLAY,
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:MeviusCoREPPORunnerCfg",
+    },
+)
+
+gym.register(
+    id="Isaac-Velocity-CoRE-Field-Mevius-Play-v0",
+    entry_point="omni.isaac.lab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": core_env_cfg.MeviusCoREFieldEnvCfg_PLAY,
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:MeviusCoREPPORunnerCfg",
     },
 )

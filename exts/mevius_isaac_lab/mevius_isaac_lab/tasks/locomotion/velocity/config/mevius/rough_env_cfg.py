@@ -108,15 +108,22 @@ class MeviusSceneCfg(MySceneCfg):
         self.terrain.terrain_generator.sub_terrains["random_rough"].noise_range = (0.01, 0.09)
         self.terrain.terrain_generator.sub_terrains["random_rough"].noise_step = 0.01
         self.terrain.terrain_generator.sub_terrains["pyramid_stairs"].step_height_range = (0.02, 0.20)
-        self.terrain.terrain_generator.sub_terrains["pyramid_stairs_inv"].step_height_range = (0.02, 0.20)
+        self.terrain.terrain_generator.sub_terrains["steps"] = mdp.terrains.MeshConsecutiveStepsTerrainCfg(
+            step_height_range=(0.02, 0.17),
+            step_width_range=(0.35, 0.45),
+            step_margin_range=(0.35, 0.45),
+            border_width=0.5,
+            platform_width=1.0,
+        )
 
         # set the terrain proportions
-        self.terrain.terrain_generator.sub_terrains["pyramid_stairs"].proportion       = 0.2
-        self.terrain.terrain_generator.sub_terrains["pyramid_stairs_inv"].proportion   = 0.2
+        self.terrain.terrain_generator.sub_terrains["pyramid_stairs"].proportion       = 0.1
+        self.terrain.terrain_generator.sub_terrains["pyramid_stairs_inv"].proportion   = 0.1
         self.terrain.terrain_generator.sub_terrains["random_rough"].proportion         = 0.2
         self.terrain.terrain_generator.sub_terrains["boxes"].proportion                = 0.2
         self.terrain.terrain_generator.sub_terrains["hf_pyramid_slope"].proportion     = 0.1
         self.terrain.terrain_generator.sub_terrains["hf_pyramid_slope_inv"].proportion = 0.1
+        self.terrain.terrain_generator.sub_terrains["steps"].proportion                = 0.2
 
 
 @configclass

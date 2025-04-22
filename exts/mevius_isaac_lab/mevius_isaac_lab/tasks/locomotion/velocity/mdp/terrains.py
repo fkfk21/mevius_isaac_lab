@@ -35,8 +35,6 @@ def consecutive_steps_terrain(
           - A list of trimesh.Trimesh objects representing the rail steps.
           - A numpy array for the terrain origin (in m).
     """
-    import trimesh
-    import numpy as np
 
     # Compute the rail height
     step_height = cfg.step_height_range[0] + difficulty * (cfg.step_height_range[1] - cfg.step_height_range[0])
