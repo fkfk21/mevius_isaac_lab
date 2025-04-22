@@ -238,7 +238,7 @@ class MeviusRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         # commands
         self.commands.base_velocity.heading_command = True
         self.commands.base_velocity.heading_control_stiffness = 3.0
-        self.commands.base_velocity.ranges.lin_vel_x = (-0.9, 1.2)
+        self.commands.base_velocity.ranges.lin_vel_x = (-1.0, 1.0)
         self.commands.base_velocity.ranges.lin_vel_y = (-0.8, 0.8)
         self.commands.base_velocity.ranges.ang_vel_z = (-1.0, 1.0)
 
